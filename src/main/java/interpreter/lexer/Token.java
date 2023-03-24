@@ -1,16 +1,26 @@
 package interpreter.lexer;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 /**
  * token
  */
+@Data
+@AllArgsConstructor
 public class Token {
     /**
      * token类型
      */
-    public TokenTypeEnum type;
+    private TokenTypeEnum type;
 
     /**
      * 字面值
      */
-    public String literal;
+    private String literal;
+
+    public Token(TokenTypeEnum type) {
+        this.type = type;
+        this.literal = type.getLiterial();
+    }
 }
