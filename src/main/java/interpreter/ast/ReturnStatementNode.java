@@ -20,7 +20,7 @@ public class ReturnStatementNode implements StatementNode {
     private ExpressionNode expression;
 
     @Override
-    public String literal() {
-        return token.getLiteral() + " " + (expression != null ? expression.literal() : "");
+    public String toString() {
+        return token.getLiteral() + " " + (expression != null ? expression.toString() : "");
     }
 }

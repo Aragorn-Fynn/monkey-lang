@@ -121,7 +121,7 @@ public class Parser {
 
     private IdentifierNode parseIdentifiter() {
         if (expectPeek(TokenTypeEnum.IDENT)) {
-            return new IdentifierNode(currentToken);
+            return new IdentifierNode(currentToken, currentToken.getLiteral());
         } else {
             return null;
         }
@@ -154,6 +154,6 @@ public class Parser {
         Lexer lexer1 = new Lexer("return 5;");
         Parser parser = new Parser(lexer1);
         ProgramNode programNode = parser.parseProgram();
-        System.out.println(programNode.literal());
+        System.out.println(programNode.toString());
     }
 }

@@ -15,9 +15,9 @@ public class LetStatementNode implements StatementNode {
     private ExpressionNode expression;
 
     @Override
-    public String literal() {
+    public String toString() {
         return token.getLiteral() + " "
-                + (identifier == null ? "" : identifier.literal()) + " = "
-                + (expression == null ? "" : expression.literal())+"\n";
+                + (identifier == null ? "" : identifier.toString()) + " = "
+                + (expression == null ? "" : expression.toString())+"\n";
     }
 }

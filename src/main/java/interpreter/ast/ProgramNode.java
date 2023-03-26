@@ -21,9 +21,9 @@ public class ProgramNode implements TreeNode {
     }
 
     @Override
-    public String literal() {
+    public String toString() {
         return statements.stream()
-                .map(item -> item.literal())
+                .map(item -> item.toString())
                 .collect(Collectors.joining("\n"));
     }
 }

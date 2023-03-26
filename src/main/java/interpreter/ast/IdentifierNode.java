@@ -14,8 +14,10 @@ import lombok.NoArgsConstructor;
 public class IdentifierNode implements ExpressionNode {
     private Token token;
 
+    private String value;
+
     @Override
-    public String literal() {
-        return token.getLiteral();
+    public String toString() {
+        return value;
     }
 }
