@@ -21,6 +21,6 @@ public class ReturnStatementNode implements StatementNode {
 
     @Override
     public String toString() {
-        return token.getLiteral() + " " + (expression != null ? expression.toString() : "");
+        return token.getLiteral() + " " + (expression != null ? expression.toString() : "") + ";";
     }
 }

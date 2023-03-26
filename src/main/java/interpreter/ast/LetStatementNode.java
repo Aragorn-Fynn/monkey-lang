@@ -18,6 +18,6 @@ public class LetStatementNode implements StatementNode {
     public String toString() {
         return token.getLiteral() + " "
                 + (identifier == null ? "" : identifier.toString()) + " = "
-                + (expression == null ? "" : expression.toString())+"\n";
+                + (expression == null ? "" : expression.toString())+";";
     }
 }
