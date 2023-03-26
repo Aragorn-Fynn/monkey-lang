@@ -1,14 +1,15 @@
 package interpreter.repl;
 
+import interpreter.ast.ProgramNode;
 import interpreter.lexer.Lexer;
-import interpreter.lexer.Token;
-import interpreter.lexer.TokenTypeEnum;
+import interpreter.parser.Parser;
 import org.jline.reader.*;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * 命令行工具
@@ -35,13 +36,17 @@ public class Repl {
             try {
                 String line = lineReader.readLine(prompt);
 
-                // 1. 生成词法分析器
+                // 1. get lexer
                 Lexer lexer = new Lexer(line);
-                Token token = lexer.nextToken();
-                while (token.getType() != TokenTypeEnum.EOF) {
-                    System.out.println(token);
-                    token = lexer.nextToken();
+                // 2. get parser
+                Parser parser = new Parser(lexer);
+                ProgramNode program = parser.parseProgram();
+                if (parser.getErrors().size()>0) {
+                    System.out.println(parser.getErrors().stream().collect(Collectors.joining("\n")));
+                    continue;
                 }
+
+                System.out.println(program.toString());
 
             } catch (UserInterruptException e) {
                 // TODO

@@ -373,7 +373,7 @@ public class Parser {
         letStatement.setName(parseIdentifiter());
 
         expectPeek(TokenTypeEnum.ASSIGN);
-
+        consume();
         letStatement.setValue(parseExpression(PrecedenceEnum.LOWEST));
 
         while (currentToken.getType() != TokenTypeEnum.SEMICOLON) {
@@ -436,10 +436,4 @@ public class Parser {
         this.peekToken = lexer.nextToken();
     }
 
-    public static void main(String[] args) {
-        Lexer lexer1 = new Lexer("add(a, b, 1, 2*3, 4*5, add(6))");
-        Parser parser = new Parser(lexer1);
-        ProgramNode programNode = parser.parseProgram();
-        System.out.println(programNode.toString());
-    }
 }
