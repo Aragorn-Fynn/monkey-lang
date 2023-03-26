@@ -33,7 +33,7 @@ public class Repl {
                 .build();
 
         // 4. 输出欢迎语
-        final String WELCOME_MESSAGE = "Welcome, Monkey Language Interpreter!\n";
+        final String WELCOME_MESSAGE = "Welcome, Monkey Language Interpreter!\n\n";
         terminal.writer().append(WELCOME_MESSAGE);
 
         while (true) {
