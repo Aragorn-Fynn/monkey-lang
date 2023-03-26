@@ -7,10 +7,14 @@ import interpreter.lexer.TokenTypeEnum;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
- * 语法分析器：token -> ast
+ * 语法分析器：token -> ast, using Recursive Down, Pratt Parsing
  */
 @Data
 public class Parser {
@@ -34,11 +38,50 @@ public class Parser {
      */
     private List<String> errors = new ArrayList<>();
 
+    /**
+     * the function of parsing prefix expression;
+     */
+    private Map<TokenTypeEnum, Supplier<ExpressionNode>> prefixParseFuncMap = new HashMap<>();
+
+    /**
+     * the function of parsing infix expression;
+     */
+    private Map<TokenTypeEnum, Function<ExpressionNode, ExpressionNode>> infixParseFuncMap = new HashMap<>();
+
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         //read two token, init currentToken and peekToken
         consume();
         consume();
+
+        initParseFuncMap();
+    }
+
+    private void initParseFuncMap() {
+        prefixParseFuncMap.put(TokenTypeEnum.IDENT, () -> new IdentifierNode(currentToken, currentToken.getLiteral()));
+        prefixParseFuncMap.put(TokenTypeEnum.INT, () -> {
+            IntegerLiteralNode res = new IntegerLiteralNode();
+            res.setToken(currentToken);
+            try {
+                Integer value = Integer.valueOf(currentToken.getLiteral());
+                res.setValue(value);
+            } catch (Exception e) {
+                errors.add(String.format("could not parse %s as integer", currentToken.getLiteral()));
+                return null;
+            }
+            return res;
+        });
+        Supplier<ExpressionNode> unaryExpressionParseFunc = () -> {
+            UnaryExpressionNode res = new UnaryExpressionNode();
+            res.setToken(currentToken);
+            res.setOperator(currentToken.getLiteral());
+
+            consume();
+            res.setRight(parseExpression(PrecedenceEnum.PREFIX));
+            return res;
+        };
+        prefixParseFuncMap.put(TokenTypeEnum.BANG, unaryExpressionParseFunc);
+        prefixParseFuncMap.put(TokenTypeEnum.MINUS, unaryExpressionParseFunc);
     }
 
     /**
@@ -79,8 +122,18 @@ public class Parser {
                 statement = parseReturnStatement();
                 break;
             default:
-                statement = null;
+                statement = parseExpressionStatement();
         }
+
+        return statement;
+    }
+
+    private StatementNode parseExpressionStatement() {
+        ExpressionStatementNode statement = new ExpressionStatementNode();
+        statement.setToken(currentToken);
+        statement.setExpression(parseExpression(PrecedenceEnum.LOWEST));
+
+        expectPeek(TokenTypeEnum.SEMICOLON);
 
         return statement;
     }
@@ -88,7 +141,8 @@ public class Parser {
     private StatementNode parseReturnStatement() {
         ReturnStatementNode returnStatement = new ReturnStatementNode();
         returnStatement.setToken(currentToken);
-        returnStatement.setExpression(parseExpression());
+        consume();
+        returnStatement.setExpression(parseExpression(PrecedenceEnum.LOWEST));
         while (currentToken.getType() != TokenTypeEnum.SEMICOLON) {
             consume();
         }
@@ -105,7 +159,7 @@ public class Parser {
 
         expectPeek(TokenTypeEnum.ASSIGN);
 
-        letStatement.setExpression(parseExpression());
+        letStatement.setExpression(parseExpression(PrecedenceEnum.LOWEST));
 
         while (currentToken.getType() != TokenTypeEnum.SEMICOLON) {
             consume();
@@ -115,8 +169,14 @@ public class Parser {
     }
 
     // TODO parse Expression
-    private ExpressionNode parseExpression() {
-        return null;
+    private ExpressionNode parseExpression(PrecedenceEnum lowest) {
+        Supplier<ExpressionNode> prefixFunc = prefixParseFuncMap.get(currentToken.getType());
+        if (prefixFunc == null) {
+            errors.add(String.format("no prefix parse function for %s found", currentToken.getType().getLiterial()));
+            return null;
+        }
+        ExpressionNode leftExpression = prefixFunc.get();
+        return leftExpression;
     }
 
     private IdentifierNode parseIdentifiter() {
@@ -151,7 +211,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        Lexer lexer1 = new Lexer("return 5;");
+        Lexer lexer1 = new Lexer("foobar;");
         Parser parser = new Parser(lexer1);
         ProgramNode programNode = parser.parseProgram();
         System.out.println(programNode.toString());

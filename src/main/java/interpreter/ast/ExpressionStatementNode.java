@@ -12,6 +12,6 @@ public class ExpressionStatementNode implements StatementNode {
     private ExpressionNode expression;
 
     public String toString() {
-        return expression.toString() + ";";
+        return (expression == null ? "" : expression.toString()) + ";";
     }
 }
