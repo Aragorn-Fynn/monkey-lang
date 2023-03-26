@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * 命令行工具
  */
 public class Repl {
-    private static String prompt = ">>";
+    private static String prompt = ">>> ";
     public void run() throws IOException {
 
         // 1. 创建terminal
@@ -31,6 +31,10 @@ public class Repl {
                 .terminal(terminal)
                 .completer(completer)
                 .build();
+
+        // 4. 输出欢迎语
+        final String WELCOME_MESSAGE = "Welcome, Monkey language Interpreter!\n";
+        terminal.writer().append(WELCOME_MESSAGE);
 
         while (true) {
             try {
@@ -48,8 +52,8 @@ public class Repl {
 
                 System.out.println(program.toString());
 
-            } catch (UserInterruptException e) {
-                // TODO
+            } catch (UserInterruptException e) {// Ctrl + C
+                System.out.println("KeyboardInterrupt");
             } catch (EndOfFileException e2) {// Ctrl + D
                 System.out.println("\nBye!");
                 return;
