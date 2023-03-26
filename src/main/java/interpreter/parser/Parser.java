@@ -48,18 +48,197 @@ public class Parser {
      */
     private Map<TokenTypeEnum, Function<ExpressionNode, ExpressionNode>> infixParseFuncMap = new HashMap<>();
 
+    private Map<TokenTypeEnum, PrecedenceEnum> type2PrecedenceMap = new HashMap<>();
+
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         //read two token, init currentToken and peekToken
         consume();
         consume();
 
+        initPrecedenceMap();
         initParseFuncMap();
     }
 
+    private void initPrecedenceMap() {
+        type2PrecedenceMap.put(TokenTypeEnum.EQ, PrecedenceEnum.EQUALS);
+        type2PrecedenceMap.put(TokenTypeEnum.NOT_EQ, PrecedenceEnum.EQUALS);
+        type2PrecedenceMap.put(TokenTypeEnum.LT, PrecedenceEnum.LESSGREATER);
+        type2PrecedenceMap.put(TokenTypeEnum.GT, PrecedenceEnum.LESSGREATER);
+        type2PrecedenceMap.put(TokenTypeEnum.PLUS, PrecedenceEnum.SUM);
+        type2PrecedenceMap.put(TokenTypeEnum.MINUS, PrecedenceEnum.SUM);
+        type2PrecedenceMap.put(TokenTypeEnum.ASTERISK, PrecedenceEnum.PRODUCT);
+        type2PrecedenceMap.put(TokenTypeEnum.SLASH, PrecedenceEnum.PRODUCT);
+        type2PrecedenceMap.put(TokenTypeEnum.LPAREN, PrecedenceEnum.CALL);
+    }
+
+    private PrecedenceEnum peekPrecedence() {
+        if (type2PrecedenceMap.containsKey(peekToken.getType())) {
+            return type2PrecedenceMap.get(peekToken.getType());
+        } else {
+            return PrecedenceEnum.LOWEST;
+        }
+    }
+
+    private PrecedenceEnum currentPrecedence() {
+        if (type2PrecedenceMap.containsKey(currentToken.getType())) {
+            return type2PrecedenceMap.get(currentToken.getType());
+        } else {
+            return PrecedenceEnum.LOWEST;
+        }
+    }
+
     private void initParseFuncMap() {
+        initPrefixParseFuncMap();
+        initInfixParseFuncMap();
+
+    }
+
+    private void initInfixParseFuncMap() {
+
+        infixParseFuncMap.put(TokenTypeEnum.PLUS, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.MINUS, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.SLASH, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.ASTERISK, infixparseFunc());
+
+        infixParseFuncMap.put(TokenTypeEnum.GT, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.LT, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.EQ, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.NOT_EQ, infixparseFunc());
+
+        infixParseFuncMap.put(TokenTypeEnum.LPAREN, parseCallFunc());
+    }
+
+    private Function<ExpressionNode, ExpressionNode> parseCallFunc() {
+        return left -> {
+            CallExpressionNode res = new CallExpressionNode();
+            res.setToken(currentToken);
+            res.setFuncName(left);
+            res.setArguments(parseCallArguments());
+            return res;
+        };
+    }
+
+    private List<ExpressionNode> parseCallArguments() {
+        List<ExpressionNode> arguments = new ArrayList<>();
+        if (peekToken.getType() == TokenTypeEnum.RPAREN) {
+            consume();
+            return arguments;
+        }
+
+        consume();
+        arguments.add(parseExpression(PrecedenceEnum.LOWEST));
+        while (peekToken.getType() == TokenTypeEnum.COMMA) {
+            consume();
+            consume();
+            arguments.add(parseExpression(PrecedenceEnum.LOWEST));
+        }
+
+        if (!expectPeek(TokenTypeEnum.RPAREN)) {
+            return null;
+        }
+
+        return arguments;
+    }
+
+    private Function<ExpressionNode, ExpressionNode> infixparseFunc() {
+        Function<ExpressionNode, ExpressionNode> infixparseFunc = left -> {
+            BinaryExpressionNode res = new BinaryExpressionNode();
+            res.setToken(currentToken);
+            res.setLeft(left);
+            res.setOperator(currentToken.getLiteral());
+
+            PrecedenceEnum precedence = currentPrecedence();
+            consume();
+            res.setRight(parseExpression(precedence));
+            return res;
+        };
+        return infixparseFunc;
+    }
+
+    private void initPrefixParseFuncMap() {
         prefixParseFuncMap.put(TokenTypeEnum.IDENT, () -> new IdentifierNode(currentToken, currentToken.getLiteral()));
-        prefixParseFuncMap.put(TokenTypeEnum.INT, () -> {
+        prefixParseFuncMap.put(TokenTypeEnum.INT, intExpressionParseFunc());
+        prefixParseFuncMap.put(TokenTypeEnum.LPAREN, groupedExpressionParseFunc());
+        prefixParseFuncMap.put(TokenTypeEnum.TRUE, () -> new BooleanLiteralNode(currentToken, true));
+        prefixParseFuncMap.put(TokenTypeEnum.FALSE, () -> new BooleanLiteralNode(currentToken, false));
+        prefixParseFuncMap.put(TokenTypeEnum.BANG, unaryExpressionParseFunc());
+        prefixParseFuncMap.put(TokenTypeEnum.MINUS, unaryExpressionParseFunc());
+
+        prefixParseFuncMap.put(TokenTypeEnum.IF, ifExpressionParseFunc());
+        prefixParseFuncMap.put(TokenTypeEnum.FUNCTION, functionparseFunc());
+
+
+    }
+
+    private Supplier<ExpressionNode> functionparseFunc() {
+        return () -> {
+            FunctionLiteralNode res = new FunctionLiteralNode();
+            res.setToken(currentToken);
+            if (!expectPeek(TokenTypeEnum.LPAREN)) {
+                return null;
+            }
+
+            res.setParameters(parseParameters());
+
+            if (!expectPeek(TokenTypeEnum.LBRACE)) {
+                return null;
+            }
+
+            res.setBody(parseBlockStatement());
+
+            return res;
+        };
+    }
+
+    private List<IdentifierNode> parseParameters() {
+        List<IdentifierNode> res = new ArrayList<>();
+        if (peekToken.getType() == TokenTypeEnum.RPAREN) {
+            consume();
+            return res;
+        }
+
+        consume();
+        res.add(new IdentifierNode(currentToken, currentToken.getLiteral()));
+        while (peekToken.getType() == TokenTypeEnum.COMMA) {
+            consume();
+            consume();
+            res.add(new IdentifierNode(currentToken, currentToken.getLiteral()));
+        }
+
+        if (!expectPeek(TokenTypeEnum.RPAREN)) {
+            return null;
+        }
+
+        return res;
+    }
+    private Supplier<ExpressionNode> unaryExpressionParseFunc() {
+        Supplier<ExpressionNode> unaryExpressionParseFunc = () -> {
+            UnaryExpressionNode res = new UnaryExpressionNode();
+            res.setToken(currentToken);
+            res.setOperator(currentToken.getLiteral());
+
+            consume();
+            res.setRight(parseExpression(PrecedenceEnum.PREFIX));
+            return res;
+        };
+        return unaryExpressionParseFunc;
+    }
+
+    private Supplier<ExpressionNode> groupedExpressionParseFunc() {
+        return () -> {
+            consume();
+            ExpressionNode expression = parseExpression(PrecedenceEnum.LOWEST);
+            if (!expectPeek(TokenTypeEnum.RPAREN)) {
+                return null;
+            }
+
+            return expression;
+        };
+    }
+
+    private Supplier<ExpressionNode> intExpressionParseFunc() {
+        return () -> {
             IntegerLiteralNode res = new IntegerLiteralNode();
             res.setToken(currentToken);
             try {
@@ -70,18 +249,54 @@ public class Parser {
                 return null;
             }
             return res;
-        });
-        Supplier<ExpressionNode> unaryExpressionParseFunc = () -> {
-            UnaryExpressionNode res = new UnaryExpressionNode();
+        };
+    }
+
+    private Supplier<ExpressionNode> ifExpressionParseFunc() {
+        return () -> {
+            IfExpressionNode res = new IfExpressionNode();
             res.setToken(currentToken);
-            res.setOperator(currentToken.getLiteral());
+            if (!expectPeek(TokenTypeEnum.LPAREN)) {
+                return null;
+            }
 
             consume();
-            res.setRight(parseExpression(PrecedenceEnum.PREFIX));
+            res.setCondition(parseExpression(PrecedenceEnum.LOWEST));
+            if (!expectPeek(TokenTypeEnum.RPAREN)) {
+                return null;
+            }
+
+            if (!expectPeek(TokenTypeEnum.LBRACE)) {
+                return null;
+            }
+            res.setConsequence(parseBlockStatement());
+
+            if (peekToken.getType() == TokenTypeEnum.ELSE) {
+                consume();
+                if (!expectPeek(TokenTypeEnum.LBRACE)) {
+                    return null;
+                }
+
+                res.setAlternative(parseBlockStatement());
+            }
+
             return res;
         };
-        prefixParseFuncMap.put(TokenTypeEnum.BANG, unaryExpressionParseFunc);
-        prefixParseFuncMap.put(TokenTypeEnum.MINUS, unaryExpressionParseFunc);
+    }
+
+    private BlockStatement parseBlockStatement() {
+        BlockStatement statements = new BlockStatement();
+        statements.setToken(currentToken);
+        consume();
+        while (currentToken.getType() != TokenTypeEnum.RBRACE && currentToken.getType() != TokenTypeEnum.EOF) {
+            StatementNode statement = parseStatement();
+            if (statement != null) {
+                statements.getStatements().add(statement);
+            }
+            consume();
+        }
+
+        return statements;
     }
 
     /**
@@ -142,7 +357,7 @@ public class Parser {
         ReturnStatementNode returnStatement = new ReturnStatementNode();
         returnStatement.setToken(currentToken);
         consume();
-        returnStatement.setExpression(parseExpression(PrecedenceEnum.LOWEST));
+        returnStatement.setValue(parseExpression(PrecedenceEnum.LOWEST));
         while (currentToken.getType() != TokenTypeEnum.SEMICOLON) {
             consume();
         }
@@ -155,11 +370,11 @@ public class Parser {
     private StatementNode parseLetStatement() {
         LetStatementNode letStatement = new LetStatementNode();
         letStatement.setToken(currentToken);
-        letStatement.setIdentifier(parseIdentifiter());
+        letStatement.setName(parseIdentifiter());
 
         expectPeek(TokenTypeEnum.ASSIGN);
 
-        letStatement.setExpression(parseExpression(PrecedenceEnum.LOWEST));
+        letStatement.setValue(parseExpression(PrecedenceEnum.LOWEST));
 
         while (currentToken.getType() != TokenTypeEnum.SEMICOLON) {
             consume();
@@ -168,14 +383,25 @@ public class Parser {
         return letStatement;
     }
 
-    // TODO parse Expression
-    private ExpressionNode parseExpression(PrecedenceEnum lowest) {
+    private ExpressionNode parseExpression(PrecedenceEnum precedence) {
         Supplier<ExpressionNode> prefixFunc = prefixParseFuncMap.get(currentToken.getType());
         if (prefixFunc == null) {
             errors.add(String.format("no prefix parse function for %s found", currentToken.getType().getLiterial()));
             return null;
         }
         ExpressionNode leftExpression = prefixFunc.get();
+
+        while (!(peekToken.getType() == TokenTypeEnum.SEMICOLON)
+                && PrecedenceEnum.higherPrecedenceThan(peekPrecedence(), precedence)) {
+            Function<ExpressionNode, ExpressionNode> parseFunc = infixParseFuncMap.get(peekToken.getType());
+            if (parseFunc == null) {
+                return leftExpression;
+            }
+
+            consume();
+
+            leftExpression = parseFunc.apply(leftExpression);
+        }
         return leftExpression;
     }
 
@@ -211,7 +437,7 @@ public class Parser {
     }
 
     public static void main(String[] args) {
-        Lexer lexer1 = new Lexer("foobar;");
+        Lexer lexer1 = new Lexer("add(a, b, 1, 2*3, 4*5, add(6))");
         Parser parser = new Parser(lexer1);
         ProgramNode programNode = parser.parseProgram();
         System.out.println(programNode.toString());

@@ -17,10 +17,10 @@ public class ReturnStatementNode implements StatementNode {
     /**
      * expression node
      */
-    private ExpressionNode expression;
+    private ExpressionNode value;
 
     @Override
     public String toString() {
-        return token.getLiteral() + " " + (expression != null ? expression.toString() : "") + ";";
+        return token.getLiteral() + " " + (value != null ? value.toString() : "") + ";";
     }
 }

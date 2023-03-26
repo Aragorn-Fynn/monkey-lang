@@ -10,14 +10,14 @@ import lombok.Data;
 public class LetStatementNode implements StatementNode {
     Token token;
 
-    private IdentifierNode identifier;
+    private IdentifierNode name;
 
-    private ExpressionNode expression;
+    private ExpressionNode value;
 
     @Override
     public String toString() {
         return token.getLiteral() + " "
-                + (identifier == null ? "" : identifier.toString()) + " = "
-                + (expression == null ? "" : expression.toString())+";";
+                + (name == null ? "" : name.toString()) + " = "
+                + (value == null ? "" : value.toString())+";";
     }
 }
