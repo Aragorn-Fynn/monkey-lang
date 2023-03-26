@@ -358,7 +358,7 @@ public class Parser {
         returnStatement.setToken(currentToken);
         consume();
         returnStatement.setValue(parseExpression(PrecedenceEnum.LOWEST));
-        while (currentToken.getType() != TokenTypeEnum.SEMICOLON) {
+        if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
             consume();
         }
         return returnStatement;
@@ -376,7 +376,7 @@ public class Parser {
         consume();
         letStatement.setValue(parseExpression(PrecedenceEnum.LOWEST));
 
-        while (currentToken.getType() != TokenTypeEnum.SEMICOLON) {
+        if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
             consume();
         }
 
