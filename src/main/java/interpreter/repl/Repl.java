@@ -1,7 +1,9 @@
 package interpreter.repl;
 
 import interpreter.ast.ProgramNode;
+import interpreter.eval.Evaluator;
 import interpreter.lexer.Lexer;
+import interpreter.object.ValueObject;
 import interpreter.parser.Parser;
 import org.jline.reader.*;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -50,8 +52,10 @@ public class Repl {
                     continue;
                 }
 
-                System.out.println(program.toString());
-
+                // 3. evaluate the ast;
+                Evaluator evaluator = new Evaluator();
+                ValueObject value = evaluator.eval(program);
+                System.out.println(value.inspect());
             } catch (UserInterruptException e) {// Ctrl + C
                 System.out.println("KeyboardInterrupt");
             } catch (EndOfFileException e2) {// Ctrl + D
