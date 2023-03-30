@@ -183,32 +183,4 @@ public class Lexer {
         }
     }
 
-    public static void main(String[] args) {
-        Lexer lexer = new Lexer("let five = 5;\n" +
-                "let ten = 10;\n" +
-                "\n" +
-                "let add = fn(x, y) {\n" +
-                "  x + y;\n" +
-                "};\n" +
-                "\n" +
-                "let result = add(five, ten);\n" +
-                "!-/*5;\n" +
-                "5 < 10 > 5;\n" +
-                "\n" +
-                "if (5 < 10) {\n" +
-                "\treturn true;\n" +
-                "} else {\n" +
-                "\treturn false;\n" +
-                "}\n" +
-                "\n" +
-                "10 == 10;\n" +
-                "10 != 9;");
-        while (true) {
-            Token token = lexer.nextToken();
-            if (token.getLiteral().equals("EOF")) {
-                break;
-            }
-            System.out.println(token.getLiteral());
-        }
-    }
 }

@@ -13,7 +13,7 @@ public class BooleanObject implements ValueObject {
 
     public BooleanObject(Boolean value) {
         this.value = value;
-        this.type = ValueTypeEnum.BOOLEAN_OBJ;
+        this.type = ValueTypeEnum.BOOLEAN;
     }
 
     @Override

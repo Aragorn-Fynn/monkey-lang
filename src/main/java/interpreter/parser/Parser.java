@@ -348,7 +348,9 @@ public class Parser {
         statement.setToken(currentToken);
         statement.setExpression(parseExpression(PrecedenceEnum.LOWEST));
 
-        expectPeek(TokenTypeEnum.SEMICOLON);
+        if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
+            consume();
+        }
 
         return statement;
     }

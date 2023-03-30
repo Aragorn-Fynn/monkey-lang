@@ -11,7 +11,7 @@ public class NullObject implements ValueObject {
     private ValueTypeEnum type;
 
     public NullObject() {
-        this.type = ValueTypeEnum.NULL_OBJ;
+        this.type = ValueTypeEnum.NULL;
     }
 
     @Override

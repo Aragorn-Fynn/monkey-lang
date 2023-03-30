@@ -13,7 +13,7 @@ public class IntegerObject implements ValueObject {
 
     public IntegerObject(Integer value) {
         this.value = value;
-        this.type = ValueTypeEnum.INTEGER_OBJ;
+        this.type = ValueTypeEnum.INTEGER;
     }
 
     @Override
