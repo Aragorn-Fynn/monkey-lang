@@ -25,4 +25,11 @@ public class BooleanObject implements ValueObject {
     public String inspect() {
         return value.toString();
     }
+
+    private static final BooleanObject TRUE = new BooleanObject(true);
+    private static final BooleanObject FALSE = new BooleanObject(false);
+
+    public static BooleanObject getBooleanObject(Boolean value) {
+        return value ? TRUE : FALSE;
+    }
 }

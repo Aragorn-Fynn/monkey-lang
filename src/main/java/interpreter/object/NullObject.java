@@ -23,4 +23,10 @@ public class NullObject implements ValueObject {
     public String inspect() {
         return "NULL";
     }
+
+    private static final NullObject NULL_OBJECT = new NullObject();
+
+    public static NullObject getNullObject() {
+        return NULL_OBJECT;
+    }
 }

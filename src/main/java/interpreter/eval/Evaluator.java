@@ -7,6 +7,9 @@ import interpreter.object.NullObject;
 import interpreter.object.ValueObject;
 import lombok.Data;
 
+/**
+ * 树求值器
+ */
 @Data
 public class Evaluator {
 
@@ -19,10 +22,10 @@ public class Evaluator {
         } else if (nodeClass.equals(IntegerLiteralNode.class)) {
             return new IntegerObject(((IntegerLiteralNode) node).getValue());
         } else if (nodeClass.equals(BooleanLiteralNode.class)) {
-            return new BooleanObject(((BooleanLiteralNode) node).getValue());
+            return BooleanObject.getBooleanObject(((BooleanLiteralNode) node).getValue());
         }
 
-        return new NullObject();
+        return NullObject.getNullObject();
     }
 
     private ValueObject evalProgram(ProgramNode node) {
