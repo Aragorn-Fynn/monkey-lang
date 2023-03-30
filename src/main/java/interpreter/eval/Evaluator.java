@@ -10,35 +10,46 @@ import lombok.Data;
 @Data
 public class Evaluator {
 
-    public ValueObject eval(TreeNode node) {
+    public ValueObject eval(TreeNode node, Environment env) {
         Class nodeClass = node.getClass();
         if (nodeClass.equals(ProgramNode.class)) {
-            return evalProgram((ProgramNode) node);
+            return evalProgram((ProgramNode) node, env);
+        } else if (nodeClass.equals(LetStatementNode.class)) {
+            return evalLetStatement((LetStatementNode) node, env);
         } else if (nodeClass.equals(ExpressionStatementNode.class)) {
-            return eval(((ExpressionStatementNode) node).getExpression());
+            return eval(((ExpressionStatementNode) node).getExpression(), env);
+        } else if (nodeClass.equals(ReturnStatementNode.class)) {
+            return evalReturnStatement((ReturnStatementNode) node, env);
+        } else if (nodeClass.equals(BlockStatement.class)) {
+            return evalBlockStatement((BlockStatement) node, env);
         } else if (nodeClass.equals(IntegerLiteralNode.class)) {
             return new IntegerObject(((IntegerLiteralNode) node).getValue());
         } else if (nodeClass.equals(BooleanLiteralNode.class)) {
             return BooleanObject.getBooleanObject(((BooleanLiteralNode) node).getValue());
         } else if (nodeClass.equals(UnaryExpressionNode.class)) {
-            return evalUnaryExpression((UnaryExpressionNode) node);
+            return evalUnaryExpression((UnaryExpressionNode) node, env);
         } else if (nodeClass.equals(BinaryExpressionNode.class)) {
-            return evalBinaryExpression((BinaryExpressionNode) node);
+            return evalBinaryExpression((BinaryExpressionNode) node, env);
         } else if (nodeClass.equals(IfExpressionNode.class)) {
-            return evalIfExpression((IfExpressionNode) node);
-        } else if (nodeClass.equals(BlockStatement.class)) {
-            return evalBlockStatement((BlockStatement) node);
-        } else if (nodeClass.equals(LetStatementNode.class)) {
-            return evalLetStatement((LetStatementNode) node);
+            return evalIfExpression((IfExpressionNode) node, env);
         } else if (nodeClass.equals(FunctionLiteralNode.class)) {
             return evalFunctionLiteral((FunctionLiteralNode) node);
         } else if (nodeClass.equals(CallExpressionNode.class)) {
             return evalCallExpression((CallExpressionNode) node);
-        } else if (nodeClass.equals(ReturnStatementNode.class)) {
-            return evalReturnStatement((ReturnStatementNode) node);
+        } else if (nodeClass.equals(IdentifierNode.class)) {
+            return evalIdentifier((IdentifierNode) node, env);
         }
 
         return NullObject.getNullObject();
+    }
+
+    private ValueObject evalIdentifier(IdentifierNode node, Environment env) {
+        ValueObject value = env.get(node.getValue());
+        if (value == null) {
+            return new ErrorObject(String.format("identifier not found: %s", value));
+        }
+
+        return value;
     }
 
     private ValueObject evalFunctionLiteral(FunctionLiteralNode node) {
@@ -49,22 +60,28 @@ public class Evaluator {
         return null;
     }
 
-    private ValueObject evalReturnStatement(ReturnStatementNode node) {
-        ValueObject value = eval(node.getValue());
+    private ValueObject evalReturnStatement(ReturnStatementNode node, Environment env) {
+        ValueObject value = eval(node.getValue(), env);
         if (value.type() == ValueTypeEnum.ERROR) {
             return value;
         }
         return new ReturnObject(value);
     }
 
-    private ValueObject evalLetStatement(LetStatementNode node) {
-        return null;
+    private ValueObject evalLetStatement(LetStatementNode node, Environment env) {
+        ValueObject value = eval(node.getValue(), env);
+        if (value.type() == ValueTypeEnum.ERROR) {
+            return value;
+        }
+
+        env.set(node.getName().getValue(), value);
+        return value;
     }
 
-    private ValueObject evalBlockStatement(BlockStatement node) {
+    private ValueObject evalBlockStatement(BlockStatement node, Environment env) {
         ValueObject res = null;
         for (StatementNode statement : node.getStatements()) {
-            res = eval(statement);
+            res = eval(statement, env);
             if (res.type() == ValueTypeEnum.ERROR || res.type() == ValueTypeEnum.RETURN) {
                 return res;
             }
@@ -73,17 +90,17 @@ public class Evaluator {
         return res;
     }
 
-    private ValueObject evalIfExpression(IfExpressionNode node) {
-        ValueObject condition = eval(node.getCondition());
+    private ValueObject evalIfExpression(IfExpressionNode node, Environment env) {
+        ValueObject condition = eval(node.getCondition(), env);
 
         if (condition.type() == ValueTypeEnum.ERROR) {
             return condition;
         }
 
         if (isTrue(condition)) {
-            return eval(node.getConsequence());
+            return eval(node.getConsequence(), env);
         } else if (node.getAlternative() != null) {
-            return eval(node.getAlternative());
+            return eval(node.getAlternative(), env);
         } else {
             return NullObject.getNullObject();
         }
@@ -100,14 +117,14 @@ public class Evaluator {
         }
     }
 
-    private ValueObject evalBinaryExpression(BinaryExpressionNode node) {
-        ValueObject left = eval(node.getLeft());
+    private ValueObject evalBinaryExpression(BinaryExpressionNode node, Environment env) {
+        ValueObject left = eval(node.getLeft(), env);
 
         if (left.type() == ValueTypeEnum.ERROR) {
             return left;
         }
 
-        ValueObject right = eval(node.getRight());
+        ValueObject right = eval(node.getRight(), env);
 
         if (right.type() == ValueTypeEnum.ERROR) {
             return right;
@@ -146,8 +163,8 @@ public class Evaluator {
         return new ErrorObject(String.format("unknown operator: %s %s %s", left.type(), node.getOperator(), right.type()));
     }
 
-    private ValueObject evalUnaryExpression(UnaryExpressionNode node) {
-        ValueObject right = eval(node.getRight());
+    private ValueObject evalUnaryExpression(UnaryExpressionNode node, Environment env) {
+        ValueObject right = eval(node.getRight(), env);
 
         if (right.type() == ValueTypeEnum.ERROR) {
             return right;
@@ -174,10 +191,10 @@ public class Evaluator {
         }
     }
 
-    private ValueObject evalProgram(ProgramNode node) {
+    private ValueObject evalProgram(ProgramNode node, Environment env) {
         ValueObject res = null;
         for (StatementNode statement : node.getStatements()) {
-            res = eval(statement);
+            res = eval(statement, env);
             if (res.type() == ValueTypeEnum.RETURN) {
                 return ((ReturnObject) res).getValue();
             } else if (res.type() == ValueTypeEnum.ERROR) {

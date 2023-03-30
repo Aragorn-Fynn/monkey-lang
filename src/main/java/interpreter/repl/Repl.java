@@ -1,6 +1,7 @@
 package interpreter.repl;
 
 import interpreter.ast.ProgramNode;
+import interpreter.eval.Environment;
 import interpreter.eval.Evaluator;
 import interpreter.lexer.Lexer;
 import interpreter.object.ValueObject;
@@ -38,6 +39,8 @@ public class Repl {
         final String WELCOME_MESSAGE = "Welcome, Monkey Language Interpreter!\n\n";
         terminal.writer().append(WELCOME_MESSAGE);
 
+        // 4. 创建环境
+        Environment env = new Environment();
         while (true) {
             try {
                 String line = lineReader.readLine(prompt);
@@ -54,7 +57,7 @@ public class Repl {
 
                 // 3. evaluate the ast;
                 Evaluator evaluator = new Evaluator();
-                ValueObject value = evaluator.eval(program);
+                ValueObject value = evaluator.eval(program, env);
                 System.out.println(value.inspect());
             } catch (UserInterruptException e) {// Ctrl + C
                 System.out.println("KeyboardInterrupt");
