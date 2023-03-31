@@ -8,5 +8,6 @@ public enum ValueTypeEnum {
     BOOLEAN,
     NULL,
     RETURN,
-    ERROR;
+    ERROR,
+    FUNCTION;
 }

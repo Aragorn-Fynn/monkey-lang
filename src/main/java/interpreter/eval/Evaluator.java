@@ -4,6 +4,10 @@ import interpreter.ast.*;
 import interpreter.object.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 树求值器
  */
@@ -33,9 +37,9 @@ public class Evaluator {
         } else if (nodeClass.equals(IfExpressionNode.class)) {
             return evalIfExpression((IfExpressionNode) node, env);
         } else if (nodeClass.equals(FunctionLiteralNode.class)) {
-            return evalFunctionLiteral((FunctionLiteralNode) node);
+            return evalFunctionLiteral((FunctionLiteralNode) node, env);
         } else if (nodeClass.equals(CallExpressionNode.class)) {
-            return evalCallExpression((CallExpressionNode) node);
+            return evalCallExpression((CallExpressionNode) node, env);
         } else if (nodeClass.equals(IdentifierNode.class)) {
             return evalIdentifier((IdentifierNode) node, env);
         }
@@ -52,12 +56,58 @@ public class Evaluator {
         return value;
     }
 
-    private ValueObject evalFunctionLiteral(FunctionLiteralNode node) {
-        return null;
+    private ValueObject evalFunctionLiteral(FunctionLiteralNode node, Environment env) {
+        return new FunctionObject(node.getParameters(), node.getBody(), env);
     }
 
-    private ValueObject evalCallExpression(CallExpressionNode node) {
-        return null;
+    private ValueObject evalCallExpression(CallExpressionNode node, Environment env) {
+        ValueObject function = eval(node.getFuncName(), env);
+        if (function.type() == ValueTypeEnum.ERROR) {
+            return function;
+        }
+
+        List<ValueObject> args = evalExpressions(node.getArguments(), env);
+        if (args.size() == 1 && args.get(0).type() == ValueTypeEnum.ERROR) {
+            return args.get(0);
+        }
+
+        return applyFunction(function, args);
+    }
+
+    private ValueObject applyFunction(ValueObject function, List<ValueObject> args) {
+        if (function.type() != ValueTypeEnum.FUNCTION) {
+            return new ErrorObject(String.format("not a function: %s", function.type()));
+        }
+
+        FunctionObject fn = (FunctionObject) function;
+        Environment extendEnv = new Environment(fn.getEnv());
+        int i = 0;
+        for (IdentifierNode para : fn.getParameters()) {
+            extendEnv.set(para.getValue().toString(), args.get(i));
+            i++;
+        }
+
+        ValueObject funcRes = eval(((FunctionObject) function).getBody(), extendEnv);
+
+        if (funcRes.type() == ValueTypeEnum.RETURN) {
+            return ((ReturnObject)funcRes).getValue();
+        }
+
+        return funcRes;
+    }
+
+    private List<ValueObject> evalExpressions(List<ExpressionNode> arguments, Environment env) {
+        List<ValueObject> res = new ArrayList<>();
+        for (ExpressionNode arg : arguments) {
+            ValueObject r = eval(arg, env);
+            if (r.type() == ValueTypeEnum.ERROR) {
+                return Arrays.asList(r);
+            }
+
+            res.add(r);
+        }
+
+        return res;
     }
 
     private ValueObject evalReturnStatement(ReturnStatementNode node, Environment env) {
