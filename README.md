@@ -9,6 +9,7 @@
 5. 函数和高阶函数
 6. 闭包
 7. 字符串
+8. 内置函数
 
 ### 示例
 1. 变量绑定
@@ -60,6 +61,19 @@ Hello!
 >>> let hello = greeter("hello")
 >>> hello("feng")
 hello feng!
+```
+5. 内置函数
+```shell
+>>> len("1234")
+4
+>>> len("")
+0
+>>> len("four")
+4
+>>> let four = "2"
+>>> len(four)
+1
+>>>
 ```
 
 ### 实现

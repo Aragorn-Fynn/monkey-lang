@@ -1,6 +1,7 @@
 package interpreter.eval;
 
 import interpreter.ast.*;
+import interpreter.builtin.BuiltinFunctionEnum;
 import interpreter.object.*;
 import lombok.Data;
 
@@ -64,6 +65,12 @@ public class Evaluator {
      */
     private ValueObject evalIdentifier(IdentifierNode node, Environment env) {
         ValueObject value = env.get(node.getValue());
+        if (value != null) {
+            return value;
+        }
+
+        value = BuiltinFunctionEnum.getBuiltinFunctionOf(node.getValue());
+
         if (value == null) {
             return new ErrorObject(String.format("identifier not found: %s", node.getValue()));
         }
@@ -114,25 +121,34 @@ public class Evaluator {
      * @return
      */
     private ValueObject applyFunction(ValueObject function, List<ValueObject> args) {
-        if (function.type() != ValueTypeEnum.FUNCTION) {
-            return new ErrorObject(String.format("not a function: %s", function.type()));
+        ValueObject res = null;
+
+        switch (function.type()) {
+            case FUNCTION:
+                FunctionObject fn = (FunctionObject) function;
+                Environment extendEnv = new Environment(fn.getEnv());
+                int i = 0;
+                for (IdentifierNode para : fn.getParameters()) {
+                    extendEnv.set(para.getValue().toString(), args.get(i));
+                    i++;
+                }
+                res = eval(((FunctionObject) function).getBody(), extendEnv);
+                if (res.type() == ValueTypeEnum.RETURN) {
+                    res = ((ReturnObject)res).getValue();
+                }
+                break;
+            case BUILTIN:
+                BuiltinFunctionObject builtinFunc = (BuiltinFunctionObject) function;
+                res = builtinFunc.getFunction().apply(args);
+                break;
+            default:
+                return new ErrorObject(String.format("not a function: %s", function.type()));
         }
 
-        FunctionObject fn = (FunctionObject) function;
-        Environment extendEnv = new Environment(fn.getEnv());
-        int i = 0;
-        for (IdentifierNode para : fn.getParameters()) {
-            extendEnv.set(para.getValue().toString(), args.get(i));
-            i++;
-        }
 
-        ValueObject funcRes = eval(((FunctionObject) function).getBody(), extendEnv);
 
-        if (funcRes.type() == ValueTypeEnum.RETURN) {
-            return ((ReturnObject)funcRes).getValue();
-        }
 
-        return funcRes;
+        return res;
     }
 
     private List<ValueObject> evalExpressions(List<ExpressionNode> arguments, Environment env) {
