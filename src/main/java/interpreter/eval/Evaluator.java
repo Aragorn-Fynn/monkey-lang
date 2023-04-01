@@ -62,7 +62,7 @@ public class Evaluator {
     private ValueObject evalIdentifier(IdentifierNode node, Environment env) {
         ValueObject value = env.get(node.getValue());
         if (value == null) {
-            return new ErrorObject(String.format("identifier not found: %s", value));
+            return new ErrorObject(String.format("identifier not found: %s", node.getValue()));
         }
 
         return value;

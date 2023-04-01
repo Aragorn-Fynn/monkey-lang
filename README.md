@@ -13,43 +13,37 @@
 1. 变量绑定
 ```shell
 >>> let a = 1;
+>>> a
 1
->>> a;
-1
->>> let b = 2;
-2
+>>> let b = 2
 >>> b
 2
->>> let a = 1 > 2;
-false
+>>> let a = 1 > 2
 >>> a
 false
 >>> 
 ```
 2. 函数
 ```shell
->>> let add = fn(a, b) {return a+b};
-fn(a,b) {
-return (a + b);
-}
->>> add(1, 2);
+>>> let fact = fn(x) {if (x==0) {return 0} else {if (x==1) {return 1} else{return fact(x-1) + fact(x-2)}}};
+>>> fact(3);
+2
+>>> fact(4);
 3
+>>> fact(5);
+5
+>>> fact(6);
+8
+>>> fact(7);
+13
 >>> 
 ```
 3. 高阶函数
 ```shell
 >>> let twice = fn(func, x) {return func(func(x))};
-fn(func,x) {
-return func(func(x));
-}
->>> let addOne = fn(x) {return x+2}
-fn(x) {
-return (x + 2);
-}
+>>> let addOne = fn(x) {return x+1}
 >>> twice(addOne, 2);
-6
->>> 
-
+4
 ```
 
 ### 实现
