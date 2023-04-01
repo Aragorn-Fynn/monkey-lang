@@ -14,7 +14,10 @@ import java.util.Map;
 @NoArgsConstructor
 
 public class Environment {
-    private static final Map<String, ValueObject> env = new HashMap<>();
+    /**
+     * the map should not be static, if it is static, the outer context will share the same map, it is wrong.
+     */
+    private final Map<String, ValueObject> env = new HashMap<>();
     private Environment outer;
 
     public Environment(Environment outer) {
