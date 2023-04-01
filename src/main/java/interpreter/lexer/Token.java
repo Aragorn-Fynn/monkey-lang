@@ -4,18 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * token
+ * token： output of lexer, input of parser
  */
 @Data
 @AllArgsConstructor
 public class Token {
     /**
-     * token类型
+     * token type
      */
     private TokenTypeEnum type;
 
     /**
-     * 字面值
+     * literal of token
      */
     private String literal;
 

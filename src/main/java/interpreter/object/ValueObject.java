@@ -1,7 +1,7 @@
 package interpreter.object;
 
 /**
- * 对象系统接口
+ * inner representation of value in monkey language
  */
 public interface ValueObject {
     ValueTypeEnum type();

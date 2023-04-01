@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * bind the identifier to value
+ * context while interpreting the statement, store the value of identifier
  */
 @Data
 @NoArgsConstructor

@@ -12,7 +12,7 @@ public enum TokenTypeEnum {
     ILLEGAL("ILLEGAL", false),
     EOF("EOF", false),
 
-    // 标识符
+    // identifier
     IDENT("IDENT", false),
 
     // Integer
@@ -41,7 +41,7 @@ public enum TokenTypeEnum {
     LBRACE("{", false),
     RBRACE("}", false),
 
-    // key word
+    // keywords
     FUNCTION("fn", true),
     LET("let", true),
     TRUE("true", true),

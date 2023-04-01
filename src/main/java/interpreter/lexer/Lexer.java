@@ -3,6 +3,7 @@ package interpreter.lexer;
 import lombok.Data;
 
 /**
+ * Top-Down Parsing
  * source string -> token
  */
 @Data
@@ -18,12 +19,12 @@ public class Lexer {
     private int position;
 
     /**
-     * position will be read
+     * position will be read in the future
      */
     private int readPosition;
 
     /**
-     * character being read
+     * current character being read
      */
     private char character;
 

@@ -1,7 +1,7 @@
 package interpreter.parser;
 
 /**
- * 优先级
+ * precedence
  */
 public enum PrecedenceEnum {
     DEFAULT,

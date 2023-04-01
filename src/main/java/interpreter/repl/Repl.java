@@ -15,32 +15,36 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 
 /**
- * 命令行工具
+ * command line
  */
 public class Repl {
     private static String prompt = ">>> ";
     public void run() throws IOException {
 
-        // 1. 创建terminal
+        // 1. create terminal
         Terminal terminal = TerminalBuilder.builder()
                 .system(true)
                 .build();
 
-        // 2. 命令补全
+        // 2. command completer
         Completer completer = new StringsCompleter("fn", "let", "true", "false", "if", "else", "return");
 
-        // 3. 创建命令行
+        // 3. create reader
         LineReader lineReader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .completer(completer)
                 .build();
 
-        // 4. 输出欢迎语
+        // 4. output the welcome message
         final String WELCOME_MESSAGE = "Welcome, Monkey Language Interpreter!\n\n";
         terminal.writer().append(WELCOME_MESSAGE);
 
-        // 4. 创建环境
+        // 5. create the env
         Environment env = new Environment();
+
+        /**
+         * loop util Ctrl+D
+         */
         while (true) {
             try {
                 String line = lineReader.readLine(prompt);
@@ -68,7 +72,4 @@ public class Repl {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        new Repl().run();
-    }
 }

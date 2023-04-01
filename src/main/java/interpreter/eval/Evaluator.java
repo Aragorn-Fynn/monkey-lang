@@ -9,11 +9,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 树求值器
+ * evaluate the program with tree traversal algorithm
  */
 @Data
 public class Evaluator {
 
+    /**
+     * return inner representation of monkey lang
+     * @param node
+     * @param env
+     * @return
+     */
     public ValueObject eval(TreeNode node, Environment env) {
         Class nodeClass = node.getClass();
         if (nodeClass.equals(ProgramNode.class)) {
@@ -47,6 +53,12 @@ public class Evaluator {
         return NullObject.getNullObject();
     }
 
+    /**
+     * get the real value of identifier from the context
+     * @param node
+     * @param env
+     * @return
+     */
     private ValueObject evalIdentifier(IdentifierNode node, Environment env) {
         ValueObject value = env.get(node.getValue());
         if (value == null) {
@@ -56,10 +68,25 @@ public class Evaluator {
         return value;
     }
 
+    /**
+     * return the function with current env, implement closure
+     * @param node
+     * @param env
+     * @return
+     */
     private ValueObject evalFunctionLiteral(FunctionLiteralNode node, Environment env) {
         return new FunctionObject(node.getParameters(), node.getBody(), env);
     }
 
+    /**
+     * eval call expression:
+     * 1. get function from context
+     * 2. eval arguments expression
+     * 3. apply function with the args
+     * @param node
+     * @param env
+     * @return
+     */
     private ValueObject evalCallExpression(CallExpressionNode node, Environment env) {
         ValueObject function = eval(node.getFuncName(), env);
         if (function.type() == ValueTypeEnum.ERROR) {
@@ -74,6 +101,15 @@ public class Evaluator {
         return applyFunction(function, args);
     }
 
+    /**
+     * 1. create context of the function
+     * 2. set args in the context
+     * 3. eval the statements in function body
+     * 4. return value;
+     * @param function
+     * @param args
+     * @return
+     */
     private ValueObject applyFunction(ValueObject function, List<ValueObject> args) {
         if (function.type() != ValueTypeEnum.FUNCTION) {
             return new ErrorObject(String.format("not a function: %s", function.type()));

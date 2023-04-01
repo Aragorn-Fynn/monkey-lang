@@ -14,12 +14,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * 语法分析器：token -> ast, using Recursive Down, Pratt Parsing
+ * parser：token -> ast, using Recursive Down, Pratt Parsing
  */
 @Data
 public class Parser {
     /**
-     * 词法分析器
+     * read token from lexer
      */
     private Lexer lexer;
 
@@ -29,12 +29,12 @@ public class Parser {
     private Token currentToken;
 
     /**
-     * token will be read
+     * token will be read in the future
      */
     private Token peekToken;
 
     /**
-     * error message while parse
+     * errors occurred while parsing
      */
     private List<String> errors = new ArrayList<>();
 
@@ -48,6 +48,9 @@ public class Parser {
      */
     private Map<TokenTypeEnum, Function<ExpressionNode, ExpressionNode>> infixParseFuncMap = new HashMap<>();
 
+    /**
+     * precedence of operator
+     */
     private Map<TokenTypeEnum, PrecedenceEnum> type2PrecedenceMap = new HashMap<>();
 
     public Parser(Lexer lexer) {
@@ -72,6 +75,10 @@ public class Parser {
         type2PrecedenceMap.put(TokenTypeEnum.LPAREN, PrecedenceEnum.CALL);
     }
 
+    /**
+     * get the precedence of next token
+     * @return
+     */
     private PrecedenceEnum peekPrecedence() {
         if (type2PrecedenceMap.containsKey(peekToken.getType())) {
             return type2PrecedenceMap.get(peekToken.getType());
@@ -80,6 +87,10 @@ public class Parser {
         }
     }
 
+    /**
+     * get the precedence of current token
+     * @return
+     */
     private PrecedenceEnum currentPrecedence() {
         if (type2PrecedenceMap.containsKey(currentToken.getType())) {
             return type2PrecedenceMap.get(currentToken.getType());
@@ -94,6 +105,9 @@ public class Parser {
 
     }
 
+    /**
+     * init the function of parsing infix expression
+     */
     private void initInfixParseFuncMap() {
 
         infixParseFuncMap.put(TokenTypeEnum.PLUS, infixparseFunc());
@@ -327,6 +341,10 @@ public class Parser {
         return statements;
     }
 
+    /**
+     * parse statement, monkey lang has three type of statements: let/return/expression
+     * @return
+     */
     private StatementNode parseStatement() {
         StatementNode statement;
         switch (currentToken.getType()) {
@@ -348,6 +366,7 @@ public class Parser {
         statement.setToken(currentToken);
         statement.setExpression(parseExpression(PrecedenceEnum.LOWEST));
 
+        // next token should be semicolon, not must
         if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
             consume();
         }
@@ -357,9 +376,13 @@ public class Parser {
 
     private StatementNode parseReturnStatement() {
         ReturnStatementNode returnStatement = new ReturnStatementNode();
+        // current token is return
         returnStatement.setToken(currentToken);
+        // consume return token
         consume();
+        // next is an expression
         returnStatement.setValue(parseExpression(PrecedenceEnum.LOWEST));
+
         if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
             consume();
         }
@@ -371,11 +394,16 @@ public class Parser {
      */
     private StatementNode parseLetStatement() {
         LetStatementNode letStatement = new LetStatementNode();
+        // current token is let
         letStatement.setToken(currentToken);
+        // next token should be identifier
         letStatement.setName(parseIdentifiter());
 
+        // next token should be =
         expectPeek(TokenTypeEnum.ASSIGN);
+        // consume =
         consume();
+        // next is an expression
         letStatement.setValue(parseExpression(PrecedenceEnum.LOWEST));
 
         if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
@@ -385,6 +413,14 @@ public class Parser {
         return letStatement;
     }
 
+    /**
+     * parse expression with pratt algorithm
+     * 1. parse prefix with registered function
+     * 2. if the precedence of peek token is higher than current token, parse infix expression with registered function
+     * 3. if not, return the expression of step 1
+     * @param precedence
+     * @return
+     */
     private ExpressionNode parseExpression(PrecedenceEnum precedence) {
         Supplier<ExpressionNode> prefixFunc = prefixParseFuncMap.get(currentToken.getType());
         if (prefixFunc == null) {
@@ -415,6 +451,12 @@ public class Parser {
         }
     }
 
+    /**
+     * 1. if next token matches the expected token, consume and return true.
+     * 2. if not, return false;
+     * @param type
+     * @return
+     */
     private boolean expectPeek(TokenTypeEnum type) {
         if (peekToken.getType() == type) {
             consume();
