@@ -161,7 +161,7 @@ public class Evaluator {
         }
 
         env.set(node.getName().getValue(), value);
-        return value;
+        return null;
     }
 
     private ValueObject evalBlockStatement(BlockStatement node, Environment env) {
@@ -281,6 +281,9 @@ public class Evaluator {
         ValueObject res = null;
         for (StatementNode statement : node.getStatements()) {
             res = eval(statement, env);
+            if (res == null) {
+                continue;
+            }
             if (res.type() == ValueTypeEnum.RETURN) {
                 return ((ReturnObject) res).getValue();
             } else if (res.type() == ValueTypeEnum.ERROR) {

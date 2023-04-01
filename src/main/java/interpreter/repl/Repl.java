@@ -62,7 +62,9 @@ public class Repl {
                 // 3. evaluate the ast;
                 Evaluator evaluator = new Evaluator();
                 ValueObject value = evaluator.eval(program, env);
-                System.out.println(value.inspect());
+                if (value != null) {
+                    System.out.println(value.inspect());
+                }
             } catch (UserInterruptException e) {// Ctrl + C
                 System.out.println("KeyboardInterrupt");
             } catch (EndOfFileException e2) {// Ctrl + D
