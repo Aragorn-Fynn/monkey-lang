@@ -48,6 +48,9 @@ public class Evaluator {
             return evalCallExpression((CallExpressionNode) node, env);
         } else if (nodeClass.equals(IdentifierNode.class)) {
             return evalIdentifier((IdentifierNode) node, env);
+        } else if (nodeClass.equals(StringLiteralNode.class)) {
+            // eval string expression
+            return new StringObject(((StringLiteralNode) node).getValue());
         }
 
         return NullObject.getNullObject();
@@ -241,6 +244,8 @@ public class Evaluator {
                 default:
                     return new ErrorObject(String.format("unknown operator: %s %s %s", left.type(), node.getOperator(), right.type()));
             }
+        } else if (left.type() == ValueTypeEnum.STRING && "+".equals(node.getOperator())) {
+            return new StringObject(((StringObject)left).getValue() + ((StringObject)right).getValue());
         } else if ("==".equals(node.getOperator())) {
             return BooleanObject.getBooleanObject(left == right);
         } else if ("!=".equals(node.getOperator())) {

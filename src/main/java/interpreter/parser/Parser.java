@@ -178,6 +178,8 @@ public class Parser {
         prefixParseFuncMap.put(TokenTypeEnum.FALSE, () -> new BooleanLiteralNode(currentToken, false));
         prefixParseFuncMap.put(TokenTypeEnum.BANG, unaryExpressionParseFunc());
         prefixParseFuncMap.put(TokenTypeEnum.MINUS, unaryExpressionParseFunc());
+        // add function of parsing string
+        prefixParseFuncMap.put(TokenTypeEnum.STRING, () -> new StringLiteralNode(currentToken, currentToken.getLiteral()));
 
         prefixParseFuncMap.put(TokenTypeEnum.IF, ifExpressionParseFunc());
         prefixParseFuncMap.put(TokenTypeEnum.FUNCTION, functionparseFunc());

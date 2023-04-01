@@ -8,6 +8,7 @@
 4. 算术表达式
 5. 函数和高阶函数
 6. 闭包
+7. 字符串
 
 ### 示例
 1. 变量绑定
@@ -44,6 +45,21 @@ false
 >>> let addOne = fn(x) {return x+1}
 >>> twice(addOne, 2);
 4
+```
+4. 字符串
+```shell
+>>> let hello = "hello there, fellow monkey users and fans"
+>>> hello
+hello there, fellow monkey users and fans
+>>> "hello world"
+hello world
+>>> let sayHello = fn() {"Hello!"}
+>>> sayHello();
+Hello!
+>>> let greeter = fn(greeting) {fn(name) {greeting + " " + name +"!"}};
+>>> let hello = greeter("hello")
+>>> hello("feng")
+hello feng!
 ```
 
 ### 实现

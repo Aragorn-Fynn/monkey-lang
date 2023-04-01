@@ -93,6 +93,9 @@ public class Lexer {
             case '}':
                 token = new Token(TokenTypeEnum.RBRACE);
                 break;
+            case '"':
+                token = getString();
+                break;
             default:
                 if (Character.isDigit(ch)) {
                     token = getNum();
@@ -104,6 +107,21 @@ public class Lexer {
         }
 
         return token;
+    }
+
+    /**
+     * get string token
+     * @return
+     */
+    private Token getString() {
+        int pos = position;
+        consume();
+        while ('"' != character && 0 != character) {
+            consume();
+        }
+
+        String str = input.substring(pos, position - 1);
+        return new Token(TokenTypeEnum.STRING, str);
     }
 
     /**

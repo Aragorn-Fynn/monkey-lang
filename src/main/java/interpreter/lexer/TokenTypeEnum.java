@@ -18,6 +18,9 @@ public enum TokenTypeEnum {
     // Integer
     INT("INT", false),
 
+    // string
+    STRING("STRING", false),
+
     // operator
     ASSIGN("=", false),
     PLUS("+", false),

@@ -9,5 +9,6 @@ public enum ValueTypeEnum {
     NULL,
     RETURN,
     ERROR,
-    FUNCTION;
+    FUNCTION,
+    STRING;
 }

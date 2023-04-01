@@ -63,7 +63,7 @@ public class Repl {
                 Evaluator evaluator = new Evaluator();
                 ValueObject value = evaluator.eval(program, env);
                 if (value != null) {
-                    System.out.println(value.inspect());
+                    terminal.writer().println(value.inspect());
                 }
             } catch (UserInterruptException e) {// Ctrl + C
                 System.out.println("KeyboardInterrupt");
