@@ -9,7 +9,12 @@
 5. 函数和高阶函数
 6. 闭包
 7. 字符串
-8. 内置函数
+8. 数组
+9. 内置函数
+   1. len: 求数组和字符串长度
+   2. first: 求数组第一个元素
+   3. push: 向数组结尾添加一个元素
+
 
 ### 示例
 1. 变量绑定
@@ -62,13 +67,29 @@ Hello!
 >>> hello("feng")
 hello feng!
 ```
+5. 数组
+```shell
+>>> let myArr = [1+2, 2+3, fn(x){return x*x}]
+>>> myArr[0]
+3
+>>> myArr[1]
+5
+>>> myArr[2](2)
+4
+>>> len(myArr)
+3
+>>> first(myArr)
+3
+>>> let another = push(myArr, 4)
+>>> another
+[3,5,fn(x) {
+return (x * x);
+},4]
+>>>
+```
 5. 内置函数
 ```shell
 >>> len("1234")
-4
->>> len("")
-0
->>> len("four")
 4
 >>> let four = "2"
 >>> len(four)
