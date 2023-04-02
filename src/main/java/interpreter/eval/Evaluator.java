@@ -52,9 +52,48 @@ public class Evaluator {
         } else if (nodeClass.equals(StringLiteralNode.class)) {
             // eval string expression
             return new StringObject(((StringLiteralNode) node).getValue());
+        } else if (nodeClass.equals(ArrayLiteralExpressionNode.class)) {
+            return evalArrayLiteral((ArrayLiteralExpressionNode) node, env);
+        } else if (nodeClass.equals(ArrayIndexExpressionNode.class)) {
+            return evalArrayIndex((ArrayIndexExpressionNode) node, env);
         }
 
         return NullObject.getNullObject();
+    }
+
+    private ValueObject evalArrayIndex(ArrayIndexExpressionNode node, Environment env) {
+        ValueObject arr = eval(node.getArray(), env);
+        if (arr.type() == ValueTypeEnum.ERROR) {
+            return arr;
+        }
+
+        ValueObject index = eval(node.getIndex(), env);
+        if (index.type() == ValueTypeEnum.ERROR) {
+            return index;
+        }
+
+        if (arr.type() == ValueTypeEnum.ARRAY && index.type() == ValueTypeEnum.INTEGER) {
+            ArrayObject arrayObject = (ArrayObject) arr;
+            Integer idx =((IntegerObject) index).getValue();
+            if (idx < 0 || idx > arrayObject.getElements().size() - 1) {
+                return NullObject.getNullObject();
+            }
+
+            return arrayObject.getElements().get(idx);
+        } else {
+            return new ErrorObject(String.format("index not supported: %s", arr.type()));
+        }
+    }
+
+    private ValueObject evalArrayLiteral(ArrayLiteralExpressionNode node, Environment env) {
+        List<ExpressionNode> elements = node.getElements();
+        List<ValueObject> ele = evalExpressions(elements, env);
+        if (ele.size() == 1 && ele.get(0).type() == ValueTypeEnum.ERROR) {
+            return ele.get(0);
+        }
+
+        ArrayObject array = new ArrayObject(ele);
+        return array;
     }
 
     /**

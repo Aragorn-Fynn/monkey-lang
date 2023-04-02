@@ -43,6 +43,9 @@ public enum TokenTypeEnum {
     RPAREN(")", false),
     LBRACE("{", false),
     RBRACE("}", false),
+    // array token
+    LBRACKET("[", false),
+    RBRACKET("]", false),
 
     // keywords
     FUNCTION("fn", true),

@@ -11,5 +11,6 @@ public enum ValueTypeEnum {
     ERROR,
     FUNCTION,
     STRING,
-    BUILTIN;
+    BUILTIN,
+    ARRAY;
 }

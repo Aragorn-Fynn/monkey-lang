@@ -28,6 +28,8 @@ public class Lexer {
      */
     private char character;
 
+    private static final Token EOF = new Token(TokenTypeEnum.EOF);
+
     public Lexer(String input) {
         this.input = input;
         this.position = 0;
@@ -39,7 +41,7 @@ public class Lexer {
         Token token;
         switch (ch) {
             case 0:
-                token = new Token(TokenTypeEnum.EOF);
+                token = EOF;
                 break;
             case '=':
                 if (peek() == '=') {
@@ -92,6 +94,12 @@ public class Lexer {
                 break;
             case '}':
                 token = new Token(TokenTypeEnum.RBRACE);
+                break;
+            case '[':
+                token = new Token(TokenTypeEnum.LBRACKET);
+                break;
+            case ']':
+                token = new Token(TokenTypeEnum.RBRACKET);
                 break;
             case '"':
                 token = getString();

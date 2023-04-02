@@ -73,6 +73,7 @@ public class Parser {
         type2PrecedenceMap.put(TokenTypeEnum.ASTERISK, PrecedenceEnum.PRODUCT);
         type2PrecedenceMap.put(TokenTypeEnum.SLASH, PrecedenceEnum.PRODUCT);
         type2PrecedenceMap.put(TokenTypeEnum.LPAREN, PrecedenceEnum.CALL);
+        type2PrecedenceMap.put(TokenTypeEnum.LBRACKET, PrecedenceEnum.INDEX);
     }
 
     /**
@@ -121,6 +122,23 @@ public class Parser {
         infixParseFuncMap.put(TokenTypeEnum.NOT_EQ, infixparseFunc());
 
         infixParseFuncMap.put(TokenTypeEnum.LPAREN, parseCallFunc());
+
+        infixParseFuncMap.put(TokenTypeEnum.LBRACKET, parseArrayIndexFunc());
+    }
+
+    private Function<ExpressionNode, ExpressionNode> parseArrayIndexFunc() {
+        return left -> {
+            ArrayIndexExpressionNode res = new ArrayIndexExpressionNode();
+            res.setToken(currentToken);
+            res.setArray(left);
+            consume();
+            res.setIndex(parseExpression(PrecedenceEnum.LOWEST));
+            if (!expectPeek(TokenTypeEnum.RBRACKET)) {
+                return null;
+            }
+
+            return res;
+        };
     }
 
     private Function<ExpressionNode, ExpressionNode> parseCallFunc() {
@@ -128,14 +146,14 @@ public class Parser {
             CallExpressionNode res = new CallExpressionNode();
             res.setToken(currentToken);
             res.setFuncName(left);
-            res.setArguments(parseCallArguments());
+            res.setArguments(parseExpressionList(TokenTypeEnum.RPAREN));
             return res;
         };
     }
 
-    private List<ExpressionNode> parseCallArguments() {
+    private List<ExpressionNode> parseExpressionList(TokenTypeEnum end) {
         List<ExpressionNode> arguments = new ArrayList<>();
-        if (peekToken.getType() == TokenTypeEnum.RPAREN) {
+        if (peekToken.getType() == end) {
             consume();
             return arguments;
         }
@@ -148,7 +166,7 @@ public class Parser {
             arguments.add(parseExpression(PrecedenceEnum.LOWEST));
         }
 
-        if (!expectPeek(TokenTypeEnum.RPAREN)) {
+        if (!expectPeek(end)) {
             return null;
         }
 
@@ -180,11 +198,21 @@ public class Parser {
         prefixParseFuncMap.put(TokenTypeEnum.MINUS, unaryExpressionParseFunc());
         // add function of parsing string
         prefixParseFuncMap.put(TokenTypeEnum.STRING, () -> new StringLiteralNode(currentToken, currentToken.getLiteral()));
+        prefixParseFuncMap.put(TokenTypeEnum.LBRACKET, arrayLiteralExpressionParseFunc());
 
         prefixParseFuncMap.put(TokenTypeEnum.IF, ifExpressionParseFunc());
         prefixParseFuncMap.put(TokenTypeEnum.FUNCTION, functionparseFunc());
 
 
+    }
+
+    private Supplier<ExpressionNode> arrayLiteralExpressionParseFunc() {
+        return () -> {
+            ArrayLiteralExpressionNode res = new ArrayLiteralExpressionNode(currentToken);
+            List<ExpressionNode> elements = parseExpressionList(TokenTypeEnum.RBRACKET);
+            res.getElements().addAll(elements);
+            return res;
+        };
     }
 
     private Supplier<ExpressionNode> functionparseFunc() {
