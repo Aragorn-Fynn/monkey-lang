@@ -14,6 +14,7 @@
    1. len: 求数组和字符串长度
    2. first: 求数组第一个元素
    3. push: 向数组结尾添加一个元素
+   4. print: 向标准输出打印数据
 
 
 ### 示例
@@ -95,6 +96,8 @@ return (x * x);
 >>> len(four)
 1
 >>>
+>>> print("hello world");
+hello world
 ```
 
 ### 实现

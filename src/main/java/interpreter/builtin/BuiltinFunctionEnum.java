@@ -13,7 +13,18 @@ public enum BuiltinFunctionEnum {
 
     LEN("len", lenFunction()),
     FIRST("first", firstFunction()),
-    PUSH("push", pushFunction());
+    PUSH("push", pushFunction()),
+    PRINT("print", printFunction());
+
+    private static Function<List<ValueObject>, ValueObject> printFunction() {
+        return args -> {
+            for (ValueObject arg : args) {
+                System.out.println(arg.inspect());
+            }
+
+            return null;
+        };
+    }
 
     /**
      * array is immutable
