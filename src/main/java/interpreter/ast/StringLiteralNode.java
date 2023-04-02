@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * string node in ast
+ * example: "hello world"
  */
 @Data
 @NoArgsConstructor

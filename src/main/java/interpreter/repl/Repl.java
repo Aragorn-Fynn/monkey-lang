@@ -54,6 +54,7 @@ public class Repl {
                 // 2. get parser
                 Parser parser = new Parser(lexer);
                 ProgramNode program = parser.parseProgram();
+                // System.out.println(program.toString());
                 if (parser.getErrors().size()>0) {
                     System.out.println(parser.getErrors().stream().collect(Collectors.joining("\n")));
                     continue;

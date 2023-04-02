@@ -4,7 +4,8 @@ import interpreter.lexer.Token;
 import lombok.Data;
 
 /**
- * 表达式语句
+ * expression statement;
+ * example: 1+2;
  */
 @Data
 public class ExpressionStatementNode implements StatementNode {

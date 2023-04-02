@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Binary Expression
+ * example: 1+2
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

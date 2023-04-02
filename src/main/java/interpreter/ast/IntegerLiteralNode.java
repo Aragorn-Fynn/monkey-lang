@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * class of integer literal node
+ * example: 1
  */
 @Data
 @NoArgsConstructor

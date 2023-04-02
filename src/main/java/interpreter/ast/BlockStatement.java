@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * example:{1+2; 3+4;}
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

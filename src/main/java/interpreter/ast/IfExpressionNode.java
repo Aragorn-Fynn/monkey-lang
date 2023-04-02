@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * if expression;
+ * example: if(true) {return true} else {return false;}
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

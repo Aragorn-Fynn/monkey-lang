@@ -4,7 +4,8 @@ import interpreter.lexer.Token;
 import lombok.Data;
 
 /**
- * node class of let statemnet
+ * node class of let statemnet;
+ * example: let a=1;
  */
 @Data
 public class LetStatementNode implements StatementNode {

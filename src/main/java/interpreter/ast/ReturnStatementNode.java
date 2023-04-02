@@ -5,6 +5,7 @@ import lombok.Data;
 
 /**
  * class of return statement
+ * example: return a+1;
  */
 @Data
 public class ReturnStatementNode implements StatementNode {

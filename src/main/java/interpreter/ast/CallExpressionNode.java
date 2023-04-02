@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * example: add(1,2)
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 一元运算符
+ * unary expression
+ * example: !true; -3;
  */
 @Data
 @NoArgsConstructor
