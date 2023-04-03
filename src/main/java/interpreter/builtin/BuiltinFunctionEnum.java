@@ -3,6 +3,8 @@ package interpreter.builtin;
 import interpreter.object.*;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +16,28 @@ public enum BuiltinFunctionEnum {
     LEN("len", lenFunction()),
     FIRST("first", firstFunction()),
     PUSH("push", pushFunction()),
-    PRINT("print", printFunction());
+    PRINT("print", printFunction()),
+    TIME("time", timeFunction());
 
+    /**
+     * print time with format yyyy-MM-dd HH:mm:ss
+     * @return
+     */
+    private static Function<List<ValueObject>, ValueObject> timeFunction() {
+        return args -> {
+            if (args == null || args.size() != 0) {
+                return new ErrorObject(String.format("wrong number of arguments, got=%d, want=0", args.size()));
+            }
+
+            return new StringObject(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        };
+    }
+
+
+    /**
+     * print all value
+     * @return
+     */
     private static Function<List<ValueObject>, ValueObject> printFunction() {
         return args -> {
             for (ValueObject arg : args) {
@@ -28,6 +50,7 @@ public enum BuiltinFunctionEnum {
 
     /**
      * array is immutable
+     * push an element to array, return a new array
      * @return
      */
     private static Function<List<ValueObject>, ValueObject> pushFunction() {
@@ -48,6 +71,10 @@ public enum BuiltinFunctionEnum {
         };
     }
 
+    /**
+     * get first element of array
+     * @return
+     */
     private static Function<List<ValueObject>, ValueObject> firstFunction() {
         return args -> {
             if (args == null || args.size() != 1) {
@@ -64,6 +91,10 @@ public enum BuiltinFunctionEnum {
         };
     }
 
+    /**
+     * get length of array or string
+     * @return
+     */
     private static Function<List<ValueObject>, ValueObject> lenFunction() {
         return args -> {
             if (args == null || args.size() != 1) {
