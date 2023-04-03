@@ -139,6 +139,17 @@ alice
 >>> getName(people[1])
 anna
 >>>
+>>> let newPerson = {};
+>>> let newPerson = put(newPerson, "name", "bob")
+>>> let newPerson = put(newPerson, "age", 25)
+>>> let people = push(people, newPerson)
+>>> len(people)
+3
+>>> people[2]["name"]
+bob
+>>> people[2]["age"]
+25
+>>>
 ```
 7. 内置函数
 ```shell

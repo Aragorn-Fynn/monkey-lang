@@ -5,9 +5,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 @Getter
@@ -16,8 +14,29 @@ public enum BuiltinFunctionEnum {
     LEN("len", lenFunction()),
     FIRST("first", firstFunction()),
     PUSH("push", pushFunction()),
+    PUT("put", putFunction()),
     PRINT("print", printFunction()),
     TIME("time", timeFunction());
+
+    private static Function<List<ValueObject>, ValueObject> putFunction() {
+        return args -> {
+            if (args == null || args.size() != 3) {
+                return new ErrorObject(String.format("wrong number of arguments, got=%d, want=3", args.size()));
+            }
+
+            ValueObject arg = args.get(0);
+            if (arg.type() != ValueTypeEnum.MAP) {
+                return new ErrorObject(String.format("argument to push must be MAP, got %s", arg.type()));
+            }
+
+            Map<ValueObject, ValueObject> copyMap = new HashMap<>(((MapObject) arg).getPairs());
+            copyMap.put(args.get(1), args.get(2));
+
+            MapObject res = new MapObject();
+            res.setPairs(copyMap);
+            return res;
+        };
+    }
 
     /**
      * print time with format yyyy-MM-dd HH:mm:ss
@@ -103,6 +122,8 @@ public enum BuiltinFunctionEnum {
 
             ValueObject arg = args.get(0);
             switch (arg.type()) {
+                case MAP:
+                    return new IntegerObject(((MapObject) arg).getPairs().size());
                 case ARRAY:
                     return new IntegerObject(((ArrayObject) arg).getElements().size());
                 case STRING:

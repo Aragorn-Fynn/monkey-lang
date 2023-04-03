@@ -210,11 +210,11 @@ public class Parser {
     private Supplier<ExpressionNode> mapLiteralExpressionParseFunc() {
         return () -> {
             MapLiteralExpressionNode res = new MapLiteralExpressionNode(currentToken);
-            consume();
             if (peekToken.getType() == TokenTypeEnum.RBRACE) {
                 consume();
                 return res;
             }
+            consume();
 
             while (peekToken.getType() != TokenTypeEnum.RBRACE && peekToken.getType() != TokenTypeEnum.EOF) {
                 ExpressionNode key = parseExpression(PrecedenceEnum.LOWEST);
