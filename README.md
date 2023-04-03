@@ -10,7 +10,8 @@
 6. 闭包
 7. 字符串
 8. 数组
-9. 内置函数
+9. Hash
+10. 内置函数
    1. len: 求数组和字符串长度
    2. first: 求数组第一个元素
    3. push: 向数组结尾添加一个元素
@@ -34,25 +35,40 @@ false
 ```
 2. 函数
 ```shell
->>> let fact = fn(x) {if (x==0) {return 0} else {if (x==1) {return 1} else{return fact(x-1) + fact(x-2)}}};
->>> fact(3);
-2
->>> fact(4);
-3
->>> fact(5);
-5
->>> fact(6);
-8
->>> fact(7);
-13
+>>> let fib = fn(x) {
+        if (x==0) {
+            return 0;
+        } else {
+            if (x==1) {
+                return 1;
+            } else {
+                return fib(x-1) +fib(x-2);
+            }
+        }
+    }
+>>> fib(1)
+1
+>>> fib(2)
+1
+>>> fib(10)
+55
+>>> fib(20)
+6765
 >>> 
 ```
 3. 高阶函数
 ```shell
->>> let twice = fn(func, x) {return func(func(x))};
->>> let addOne = fn(x) {return x+1}
->>> twice(addOne, 2);
+>>> let twice = fn(func, x) {
+        return func(func(x));
+    }
+>>> let addOne = fn(x) {
+        return x+1;
+    }
+>>> twice(addOne, 1)
+3
+>>> twice(addOne, 2)
 4
+>>>
 ```
 4. 字符串
 ```shell
@@ -61,13 +77,20 @@ false
 hello there, fellow monkey users and fans
 >>> "hello world"
 hello world
->>> let sayHello = fn() {"Hello!"}
->>> sayHello();
+>>> let sayHello = fn() {
+        "Hello!";
+    }
+>>> sayHello()
 Hello!
->>> let greeter = fn(greeting) {fn(name) {greeting + " " + name +"!"}};
+>>> let greeter = fn(greeting) {
+        fn(name) {
+            greeting + " " + name +"!";
+        }
+    }
 >>> let hello = greeter("hello")
 >>> hello("feng")
 hello feng!
+>>>
 ```
 5. 数组
 ```shell
@@ -89,7 +112,35 @@ return (x * x);
 },4]
 >>>
 ```
-5. 内置函数
+6. Hash
+```shell
+>>> let myHash = {true:"yes, boolean", 99:"correct, an integer"};
+>>> myHash[true]
+yes, boolean
+>>> myHash[99]
+correct, an integer
+>>> myHash[5>1]
+yes, boolean
+>>> myHash[100-1]
+correct, an integer
+>>> let people = [{"name":"alice", "age":24}, {"name": "anna", "age": 28}];
+>>> people[0]["name"]
+alice
+>>> people[0]["age"]
+24
+>>> people[1]["age"]
+28
+>>> people[1]["name"]
+anna
+>>> 
+>>> let getName = fn(person) {return person["name"];};
+>>> getName(people[0])
+alice
+>>> getName(people[1])
+anna
+>>>
+```
+7. 内置函数
 ```shell
 >>> len("1234")
 4
@@ -99,6 +150,9 @@ return (x * x);
 >>>
 >>> print("hello world");
 hello world
+>>> time()
+2023-04-03 21:42:42
+>>> 
 ```
 
 ### 实现

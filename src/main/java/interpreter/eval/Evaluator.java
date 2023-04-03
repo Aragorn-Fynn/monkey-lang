@@ -8,6 +8,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * evaluate the program with tree traversal algorithm
@@ -54,17 +55,40 @@ public class Evaluator {
             return new StringObject(((StringLiteralNode) node).getValue());
         } else if (nodeClass.equals(ArrayLiteralExpressionNode.class)) {
             return evalArrayLiteral((ArrayLiteralExpressionNode) node, env);
-        } else if (nodeClass.equals(ArrayIndexExpressionNode.class)) {
-            return evalArrayIndex((ArrayIndexExpressionNode) node, env);
+        } else if (nodeClass.equals(IndexExpressionNode.class)) {
+            return evalArrayIndex((IndexExpressionNode) node, env);
+        } else if (nodeClass.equals(MapLiteralExpressionNode.class)) {
+            return evalMapLiteral((MapLiteralExpressionNode) node, env);
         }
 
         return NullObject.getNullObject();
     }
 
-    private ValueObject evalArrayIndex(ArrayIndexExpressionNode node, Environment env) {
-        ValueObject arr = eval(node.getArray(), env);
-        if (arr.type() == ValueTypeEnum.ERROR) {
-            return arr;
+    private ValueObject evalMapLiteral(MapLiteralExpressionNode node, Environment env) {
+        MapObject res = new MapObject();
+
+        Map<ExpressionNode, ExpressionNode> pairs = node.getPairs();
+        for (Map.Entry<ExpressionNode, ExpressionNode> pair: pairs.entrySet()) {
+            ValueObject key = eval(pair.getKey(), env);
+            if (key.type() == ValueTypeEnum.ERROR) {
+                return key;
+            }
+
+            ValueObject value = eval(pair.getValue(), env);
+            if (value.type() == ValueTypeEnum.ERROR) {
+                return value;
+            }
+
+            res.getPairs().put(key, value);
+        }
+
+        return res;
+    }
+
+    private ValueObject evalArrayIndex(IndexExpressionNode node, Environment env) {
+        ValueObject object = eval(node.getObject(), env);
+        if (object.type() == ValueTypeEnum.ERROR) {
+            return object;
         }
 
         ValueObject index = eval(node.getIndex(), env);
@@ -72,8 +96,11 @@ public class Evaluator {
             return index;
         }
 
-        if (arr.type() == ValueTypeEnum.ARRAY && index.type() == ValueTypeEnum.INTEGER) {
-            ArrayObject arrayObject = (ArrayObject) arr;
+        if (object.type() == ValueTypeEnum.MAP) {
+            MapObject mapObject = (MapObject) object;
+            return mapObject.getPairs().get(index);
+        } else if (object.type() == ValueTypeEnum.ARRAY && index.type() == ValueTypeEnum.INTEGER) {
+            ArrayObject arrayObject = (ArrayObject) object;
             Integer idx =((IntegerObject) index).getValue();
             if (idx < 0 || idx > arrayObject.getElements().size() - 1) {
                 return NullObject.getNullObject();
@@ -81,7 +108,7 @@ public class Evaluator {
 
             return arrayObject.getElements().get(idx);
         } else {
-            return new ErrorObject(String.format("index not supported: %s", arr.type()));
+            return new ErrorObject(String.format("index not supported: %s", object.type()));
         }
     }
 

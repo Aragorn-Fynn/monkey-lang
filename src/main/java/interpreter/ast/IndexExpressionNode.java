@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArrayIndexExpressionNode implements ExpressionNode {
+public class IndexExpressionNode implements ExpressionNode {
     private Token token;
-    private ExpressionNode array;
+    private ExpressionNode object;
     private ExpressionNode index;
 
     @Override
     public String toString() {
-        StringBuffer res = new StringBuffer().append(array.toString());
+        StringBuffer res = new StringBuffer().append(object.toString());
         return res.append("([")
                 .append(index.toString())
                 .append("])").toString();

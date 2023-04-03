@@ -12,5 +12,6 @@ public enum ValueTypeEnum {
     FUNCTION,
     STRING,
     BUILTIN,
-    ARRAY;
+    ARRAY,
+    MAP;
 }

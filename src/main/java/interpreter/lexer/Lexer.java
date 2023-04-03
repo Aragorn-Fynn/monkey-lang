@@ -104,6 +104,9 @@ public class Lexer {
             case '"':
                 token = getString();
                 break;
+            case ':' :
+                token = new Token(TokenTypeEnum.COLON);
+                break;
             default:
                 if (Character.isDigit(ch)) {
                     token = getNum();

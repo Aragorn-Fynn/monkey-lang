@@ -38,6 +38,7 @@ public enum TokenTypeEnum {
     // seperator
     COMMA(",", false),
     SEMICOLON(";", false),
+    COLON(":", false),
 
     LPAREN("(", false),
     RPAREN(")", false),

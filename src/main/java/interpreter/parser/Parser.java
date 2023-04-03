@@ -128,9 +128,9 @@ public class Parser {
 
     private Function<ExpressionNode, ExpressionNode> parseArrayIndexFunc() {
         return left -> {
-            ArrayIndexExpressionNode res = new ArrayIndexExpressionNode();
+            IndexExpressionNode res = new IndexExpressionNode();
             res.setToken(currentToken);
-            res.setArray(left);
+            res.setObject(left);
             consume();
             res.setIndex(parseExpression(PrecedenceEnum.LOWEST));
             if (!expectPeek(TokenTypeEnum.RBRACKET)) {
@@ -199,11 +199,44 @@ public class Parser {
         // add function of parsing string
         prefixParseFuncMap.put(TokenTypeEnum.STRING, () -> new StringLiteralNode(currentToken, currentToken.getLiteral()));
         prefixParseFuncMap.put(TokenTypeEnum.LBRACKET, arrayLiteralExpressionParseFunc());
+        prefixParseFuncMap.put(TokenTypeEnum.LBRACE, mapLiteralExpressionParseFunc());
 
         prefixParseFuncMap.put(TokenTypeEnum.IF, ifExpressionParseFunc());
         prefixParseFuncMap.put(TokenTypeEnum.FUNCTION, functionparseFunc());
 
 
+    }
+
+    private Supplier<ExpressionNode> mapLiteralExpressionParseFunc() {
+        return () -> {
+            MapLiteralExpressionNode res = new MapLiteralExpressionNode(currentToken);
+            consume();
+            if (peekToken.getType() == TokenTypeEnum.RBRACE) {
+                consume();
+                return res;
+            }
+
+            while (peekToken.getType() != TokenTypeEnum.RBRACE && peekToken.getType() != TokenTypeEnum.EOF) {
+                ExpressionNode key = parseExpression(PrecedenceEnum.LOWEST);
+                if (!expectPeek(TokenTypeEnum.COLON)) {
+                    return null;
+                }
+                consume();
+                ExpressionNode value = parseExpression(PrecedenceEnum.LOWEST);
+                res.getPairs().put(key, value);
+                if (peekToken.getType() == TokenTypeEnum.COMMA) {
+                    consume();
+                    consume();
+                }
+            }
+
+            if (peekToken.getType() != TokenTypeEnum.RBRACE) {
+                return null;
+            }
+
+            consume();
+            return res;
+        };
     }
 
     private Supplier<ExpressionNode> arrayLiteralExpressionParseFunc() {
