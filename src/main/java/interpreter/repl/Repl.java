@@ -7,6 +7,7 @@ import interpreter.lexer.Lexer;
 import interpreter.object.ValueObject;
 import interpreter.parser.Parser;
 import org.jline.reader.*;
+import org.jline.reader.impl.DefaultParser;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -29,10 +30,14 @@ public class Repl {
         // 2. command completer
         Completer completer = new StringsCompleter("fn", "let", "true", "false", "if", "else", "return");
 
+        DefaultParser lineParser = new DefaultParser();
+        lineParser.eofOnEscapedNewLine(true);
+
         // 3. create reader
         LineReader lineReader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .completer(completer)
+                .parser(lineParser)
                 .build();
 
         // 4. output the welcome message
