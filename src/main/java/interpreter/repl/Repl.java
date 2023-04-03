@@ -30,14 +30,22 @@ public class Repl {
         // 2. command completer
         Completer completer = new StringsCompleter("fn", "let", "true", "false", "if", "else", "return");
 
-        DefaultParser lineParser = new DefaultParser();
-        lineParser.eofOnEscapedNewLine(true);
 
         // 3. create reader
+        // new line on '{' and '('
+        DefaultParser lineParser = new DefaultParser();
+        lineParser.eofOnEscapedNewLine(true)
+                .setEofOnUnclosedBracket(DefaultParser.Bracket.ROUND, DefaultParser.Bracket.CURLY);
         LineReader lineReader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .completer(completer)
                 .parser(lineParser)
+                // 4 spaces of secondary prompt
+                .variable(LineReader.SECONDARY_PROMPT_PATTERN, "    ")
+                // 4 spaces of indentation
+                .variable(LineReader.INDENTATION, 4)
+                // insert bracket automatically
+                .option(LineReader.Option.INSERT_BRACKET, true)
                 .build();
 
         // 4. output the welcome message
