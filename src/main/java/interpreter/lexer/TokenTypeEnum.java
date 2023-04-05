@@ -55,7 +55,8 @@ public enum TokenTypeEnum {
     FALSE("false", true),
     IF("if", true),
     ELSE("else", true),
-    RETURN("return", true);
+    RETURN("return", true),
+    MACRO("macro", true);
 
     private String literial;
 

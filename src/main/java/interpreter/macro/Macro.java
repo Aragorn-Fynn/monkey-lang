@@ -144,7 +144,7 @@ public class Macro {
      * @return
      */
     private static TreeNode modifyProgram(ProgramNode node, Function<TreeNode, TreeNode> modifyFunc) {
-        List<StatementNode> statements = node.getStatements();
+        List<StatementNode> statements = new ArrayList<>();
         for (StatementNode statement : node.getStatements()) {
             statements.add((StatementNode) modify(statement, modifyFunc));
         }

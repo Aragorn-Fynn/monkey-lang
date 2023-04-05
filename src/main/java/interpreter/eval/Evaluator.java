@@ -67,6 +67,111 @@ public class Evaluator {
         return NullObject.getNullObject();
     }
 
+    public TreeNode expandMacro(TreeNode quoted, Environment env) {
+        return Macro.modify(quoted, node -> {
+            if (!node.getClass().equals(CallExpressionNode.class)) {
+                return node;
+            }
+
+            if (!ifMacroCall((CallExpressionNode) node, env)) {
+                return node;
+            }
+
+            CallExpressionNode call = (CallExpressionNode) node;
+            MacroObject macro = (MacroObject) env.get(call.getFuncName().toString());
+
+            List<QuoteObject> args = quoteArgs(call);
+
+            Environment evalEnv = extendMacroEnv(macro, args);
+
+            // eval value
+            ValueObject value = eval(macro.getBody(), evalEnv);
+
+            if (!value.getClass().equals(QuoteObject.class)) {
+                return null;
+            }
+
+            return ((QuoteObject) value).getNode();
+        });
+    }
+
+    private Environment extendMacroEnv(MacroObject macro, List<QuoteObject> args) {
+        Environment extended = new Environment(macro.getEnv());
+        int i = 0;
+        for (IdentifierNode para : macro.getParameters()) {
+            extended.set(para.getValue().toString(), args.get(i));
+            i++;
+        }
+
+        return extended;
+    }
+
+    private List<QuoteObject> quoteArgs(CallExpressionNode call) {
+        List<QuoteObject> res = new ArrayList<>();
+        for (ExpressionNode arg : call.getArguments()) {
+            res.add(new QuoteObject(arg));
+        }
+
+        return res;
+    }
+
+    private boolean ifMacroCall(CallExpressionNode node, Environment env) {
+        if (!node.getFuncName().getClass().equals(IdentifierNode.class)) {
+            return false;
+        }
+
+        ValueObject value = env.get(node.getFuncName().toString());
+        if (value == null) {
+            return false;
+        }
+
+        if (!value.getClass().equals(MacroObject.class)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * find macro definition, and then delete from the ast
+     * @param program
+     * @param env
+     */
+    public void defineMacros(ProgramNode program, Environment env) {
+        List<StatementNode> statements = new ArrayList<>();
+        for (StatementNode statement : program.getStatements()) {
+            if (isMacroDefinition(statement)) {
+                addMacro(statement, env);
+            } else {
+                statements.add(statement);
+            }
+        }
+
+        program.setStatements(statements);
+    }
+
+    private void addMacro(StatementNode statement, Environment env) {
+        LetStatementNode letStatementNode = (LetStatementNode) statement;
+        MacroLiteralNode macroLiteralNode = (MacroLiteralNode) letStatementNode.getValue();
+        MacroObject macro = new MacroObject();
+        macro.setEnv(env);
+        macro.setParameters(macroLiteralNode.getParameters());
+        macro.setBody(macroLiteralNode.getBody());
+        env.set(letStatementNode.getName().getValue(), macro);
+    }
+
+    private boolean isMacroDefinition(StatementNode statement) {
+        if (!statement.getClass().equals(LetStatementNode.class)) {
+            return false;
+        }
+
+        if (!((LetStatementNode) statement).getValue().getClass().equals(MacroLiteralNode.class)) {
+            return false;
+        }
+
+        return true;
+    }
+
     private ValueObject evalMapLiteral(MapLiteralExpressionNode node, Environment env) {
         MapObject res = new MapObject();
 
@@ -304,7 +409,7 @@ public class Evaluator {
         ValueObject res = null;
         for (StatementNode statement : node.getStatements()) {
             res = eval(statement, env);
-            if (res.type() == ValueTypeEnum.ERROR || res.type() == ValueTypeEnum.RETURN) {
+            if (res == null || res.type() == ValueTypeEnum.ERROR || res.type() == ValueTypeEnum.RETURN) {
                 return res;
             }
         }

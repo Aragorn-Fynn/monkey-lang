@@ -1,6 +1,7 @@
 package interpreter.repl;
 
 import interpreter.ast.ProgramNode;
+import interpreter.ast.TreeNode;
 import interpreter.eval.Environment;
 import interpreter.eval.Evaluator;
 import interpreter.lexer.Lexer;
@@ -30,7 +31,6 @@ public class Repl {
         // 2. command completer
         Completer completer = new StringsCompleter("fn", "let", "true", "false", "if", "else", "return");
 
-
         // 3. create reader
         // new line on '{' and '('
         DefaultParser lineParser = new DefaultParser();
@@ -54,7 +54,7 @@ public class Repl {
 
         // 5. create the env
         Environment env = new Environment();
-
+        Environment macroEnv = new Environment();
         /**
          * loop util Ctrl+D
          */
@@ -67,15 +67,18 @@ public class Repl {
                 // 2. get parser
                 Parser parser = new Parser(lexer);
                 ProgramNode program = parser.parseProgram();
-                // System.out.println(program.toString());
                 if (parser.getErrors().size()>0) {
                     System.out.println(parser.getErrors().stream().collect(Collectors.joining("\n")));
                     continue;
                 }
 
-                // 3. evaluate the ast;
+                // 3. evaluate macro
                 Evaluator evaluator = new Evaluator();
-                ValueObject value = evaluator.eval(program, env);
+                evaluator.defineMacros(program, macroEnv);
+                TreeNode expanded = evaluator.expandMacro(program, macroEnv);
+
+                // 3. evaluate the ast;
+                ValueObject value = evaluator.eval(expanded, env);
                 if (value != null) {
                     terminal.writer().println(value.inspect());
                 }

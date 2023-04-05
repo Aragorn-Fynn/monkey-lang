@@ -14,5 +14,6 @@ public enum ValueTypeEnum {
     BUILTIN,
     ARRAY,
     MAP,
-    QUOTE;
+    QUOTE,
+    MACRO;
 }

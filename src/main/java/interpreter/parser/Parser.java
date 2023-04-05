@@ -203,8 +203,28 @@ public class Parser {
 
         prefixParseFuncMap.put(TokenTypeEnum.IF, ifExpressionParseFunc());
         prefixParseFuncMap.put(TokenTypeEnum.FUNCTION, functionparseFunc());
+        prefixParseFuncMap.put(TokenTypeEnum.MACRO, macroparseFunc());
 
+    }
 
+    private Supplier<ExpressionNode> macroparseFunc() {
+        return () -> {
+            MacroLiteralNode res = new MacroLiteralNode();
+            res.setToken(currentToken);
+            if (!expectPeek(TokenTypeEnum.LPAREN)) {
+                return null;
+            }
+
+            res.setParameters(parseParameters());
+
+            if (!expectPeek(TokenTypeEnum.LBRACE)) {
+                return null;
+            }
+
+            res.setBody(parseBlockStatement());
+
+            return res;
+        };
     }
 
     private Supplier<ExpressionNode> mapLiteralExpressionParseFunc() {
