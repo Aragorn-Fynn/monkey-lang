@@ -13,5 +13,6 @@ public enum ValueTypeEnum {
     STRING,
     BUILTIN,
     ARRAY,
-    MAP;
+    MAP,
+    QUOTE;
 }

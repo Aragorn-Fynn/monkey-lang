@@ -2,6 +2,9 @@ package interpreter.eval;
 
 import interpreter.ast.*;
 import interpreter.builtin.BuiltinFunctionEnum;
+import interpreter.lexer.Token;
+import interpreter.lexer.TokenTypeEnum;
+import interpreter.macro.Macro;
 import interpreter.object.*;
 import lombok.Data;
 
@@ -164,6 +167,11 @@ public class Evaluator {
      * @return
      */
     private ValueObject evalCallExpression(CallExpressionNode node, Environment env) {
+
+        if (node.getFuncName().toString().equals("quote")) {
+            return evalQuote(node.getArguments().get(0), env);
+        }
+
         ValueObject function = eval(node.getFuncName(), env);
         if (function.type() == ValueTypeEnum.ERROR) {
             return function;
@@ -175,6 +183,49 @@ public class Evaluator {
         }
 
         return applyFunction(function, args);
+    }
+
+    private ValueObject evalQuote(TreeNode quoted, Environment env) {
+        quoted = Macro.modify(quoted, node -> {
+            if (!ifUnquoteCall(node)) {
+                return node;
+            }
+
+            if (!node.getClass().equals(CallExpressionNode.class)) {
+                return node;
+            }
+
+            CallExpressionNode call = (CallExpressionNode) node;
+            if (call.getArguments().size() != 1) {
+                return node;
+            }
+
+            // eval value of unquoted tree node
+            ValueObject value = eval(((CallExpressionNode) node).getArguments().get(0), env);
+            return convertObjectToAstNode(value);
+        });
+        return new QuoteObject(quoted);
+    }
+
+    private TreeNode convertObjectToAstNode(ValueObject value) {
+        switch (value.type()) {
+            case INTEGER:
+                return new IntegerLiteralNode(new Token(TokenTypeEnum.INT, value.inspect()), ((IntegerObject) value).getValue());
+            case BOOLEAN:
+                BooleanObject v = (BooleanObject) value;
+                return new BooleanLiteralNode(new Token(v.getValue()?TokenTypeEnum.TRUE:TokenTypeEnum.FALSE, v.inspect()), v.getValue());
+            case QUOTE:
+                return ((QuoteObject) value).getNode();
+            default:
+                return null;
+        }
+    }
+
+    private boolean ifUnquoteCall(TreeNode node) {
+        if (!node.getClass().equals(CallExpressionNode.class))
+            return false;
+
+        return "unquote".equals(((CallExpressionNode) node).getFuncName().toString());
     }
 
     /**
