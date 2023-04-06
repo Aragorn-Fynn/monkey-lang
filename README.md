@@ -192,6 +192,20 @@ not greater
 greater
 >>>
 ```
+9. 循环
+```shell
+>>> let loop = macro(cond, step, statements) {
+        quote(if (unquote(cond)) {
+                unquote(statements);
+                unquote(step);
+            });
+    };
+>>> let i=0;
+>>> loop(i<2, i+1, print(i));
+0
+1
+>>>
+```
 
 ### 实现
 1. 词法分析器 -> 递归下降
