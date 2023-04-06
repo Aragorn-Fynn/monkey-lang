@@ -83,7 +83,7 @@ public class Macro {
         }
         node.setParameters(parameters);
 
-        node.setBody((BlockStatement) modify(node, modifyFunc));
+        node.setBody((BlockStatement) modify(node.getBody(), modifyFunc));
 
         return node;
     }

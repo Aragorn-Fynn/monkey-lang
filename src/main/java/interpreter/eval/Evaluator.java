@@ -417,7 +417,8 @@ public class Evaluator {
                     i++;
                 }
                 res = eval(((FunctionObject) function).getBody(), extendEnv);
-                if (res.type() == ValueTypeEnum.RETURN) {
+
+                if (res != null && res.type() == ValueTypeEnum.RETURN) {
                     res = ((ReturnObject)res).getValue();
                 }
                 break;
@@ -464,14 +465,14 @@ public class Evaluator {
         }
 
         env.set(node.getName().getValue(), value);
-        return null;
+        return NullObject.getNullObject();
     }
 
     private ValueObject evalBlockStatement(BlockStatement node, Environment env) {
         ValueObject res = null;
         for (StatementNode statement : node.getStatements()) {
             res = eval(statement, env);
-            if (res == null || res.type() == ValueTypeEnum.ERROR || res.type() == ValueTypeEnum.RETURN) {
+            if (res != null && (res.type() == ValueTypeEnum.ERROR || res.type() == ValueTypeEnum.RETURN)) {
                 return res;
             }
         }
