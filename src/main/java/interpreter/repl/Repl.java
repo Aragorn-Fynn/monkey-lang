@@ -74,6 +74,7 @@ public class Repl {
 
                 // 3. evaluate macro
                 Evaluator evaluator = new Evaluator();
+                // define macro in macroEnv
                 evaluator.defineMacros(program, macroEnv);
                 TreeNode expanded = evaluator.expandMacro(program, macroEnv);
 

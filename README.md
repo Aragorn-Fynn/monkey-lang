@@ -12,11 +12,12 @@
 8. 数组
 9. Hash
 10. 内置函数
-   1. len: 求数组和字符串长度
-   2. first: 求数组第一个元素
-   3. push: 向数组结尾添加一个元素
-   4. print: 向标准输出打印数据
-   5. time: 返回当前时间戳
+11. 宏
+    1. len: 求数组和字符串长度
+    2. first: 求数组第一个元素
+    3. push: 向数组结尾添加一个元素
+    4. print: 向标准输出打印数据
+    5. time: 返回当前时间戳
 
 
 ### 示例
@@ -164,6 +165,30 @@ hello world
 >>> time()
 2023-04-03 21:42:42
 >>> 
+```
+8. 宏
+```shell
+>>> let reverse = macro(a, b) {
+        quote(unquote(b)-unquote(a));
+    };
+>>> reverse(2+2, 10-5)
+1
+>>> let evalSecond = macro(a, b){
+        quote(unquote(b));
+    };
+>>> evalSecond(print("not printed"), print("printed"))
+printed
+>>>
+>>> let unless = macro(condition, consequence, alternative) {
+        quote(if (!(unquote(condition))) {
+            unquote(consequence);
+        } else {
+            unquote(alternative);
+        });
+    };
+>>>  unless(10<5, print("not greater"), print("greater"))
+not greater
+>>> unless(10>5, print("not greater"), print("greater"))
 ```
 
 ### 实现

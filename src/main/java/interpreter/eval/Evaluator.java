@@ -67,6 +67,19 @@ public class Evaluator {
         return NullObject.getNullObject();
     }
 
+    /**
+     * traverse the program, find macro call and expand it
+     * 1. traverse the program
+     * 2. if the node is macro call
+     *    1. get the macro definition from env
+     *    2. quote the arguments
+     *    3. set args in the env
+     *    4. eval macro body with env
+     * 3. replace the macro call with the value returned from macro body
+     * @param quoted
+     * @param env
+     * @return
+     */
     public TreeNode expandMacro(TreeNode quoted, Environment env) {
         return Macro.modify(quoted, node -> {
             if (!node.getClass().equals(CallExpressionNode.class)) {
@@ -78,13 +91,16 @@ public class Evaluator {
             }
 
             CallExpressionNode call = (CallExpressionNode) node;
+            // get the macro definition from env
             MacroObject macro = (MacroObject) env.get(call.getFuncName().toString());
 
+            // quote the arguments
             List<QuoteObject> args = quoteArgs(call);
 
+            // set args in the env
             Environment evalEnv = extendMacroEnv(macro, args);
 
-            // eval value
+            // eval macro body with env
             ValueObject value = eval(macro.getBody(), evalEnv);
 
             if (!value.getClass().equals(QuoteObject.class)) {
@@ -115,6 +131,12 @@ public class Evaluator {
         return res;
     }
 
+    /**
+     * check if the statement is macro call
+     * @param node
+     * @param env
+     * @return
+     */
     private boolean ifMacroCall(CallExpressionNode node, Environment env) {
         if (!node.getFuncName().getClass().equals(IdentifierNode.class)) {
             return false;
@@ -133,7 +155,9 @@ public class Evaluator {
     }
 
     /**
-     * find macro definition, and then delete from the ast
+     * 1. find macro definition
+     * 2. add macro definition to macroEnv
+     * 3. delete macro definition from program
      * @param program
      * @param env
      */
@@ -150,16 +174,27 @@ public class Evaluator {
         program.setStatements(statements);
     }
 
+    /**
+     * add macro definition to macroEnv
+     * @param statement
+     * @param env
+     */
     private void addMacro(StatementNode statement, Environment env) {
         LetStatementNode letStatementNode = (LetStatementNode) statement;
         MacroLiteralNode macroLiteralNode = (MacroLiteralNode) letStatementNode.getValue();
         MacroObject macro = new MacroObject();
         macro.setEnv(env);
         macro.setParameters(macroLiteralNode.getParameters());
+        // the body of macro
         macro.setBody(macroLiteralNode.getBody());
         env.set(letStatementNode.getName().getValue(), macro);
     }
 
+    /**
+     * check if statement is macro definition
+     * @param statement
+     * @return
+     */
     private boolean isMacroDefinition(StatementNode statement) {
         if (!statement.getClass().equals(LetStatementNode.class)) {
             return false;
@@ -290,28 +325,48 @@ public class Evaluator {
         return applyFunction(function, args);
     }
 
+    /**
+     * eval quote node
+     * @param quoted
+     * @param env
+     * @return
+     */
     private ValueObject evalQuote(TreeNode quoted, Environment env) {
+        /**
+         * traverse the tree node, if the node is unquote call, eval the value of the node
+         * @param node
+         * @return
+         */
         quoted = Macro.modify(quoted, node -> {
-            if (!ifUnquoteCall(node)) {
-                return node;
-            }
-
+            // if the node is not call expression, don't modify, return directly
             if (!node.getClass().equals(CallExpressionNode.class)) {
                 return node;
             }
 
+            // if the call is not unquote call, don't modify, return directly
+            if (!ifUnquoteCall(node)) {
+                return node;
+            }
+
             CallExpressionNode call = (CallExpressionNode) node;
+            // if the call has more than one argument, don't modify, return directly, because unquote only has one argument
             if (call.getArguments().size() != 1) {
                 return node;
             }
 
             // eval value of unquoted tree node
             ValueObject value = eval(((CallExpressionNode) node).getArguments().get(0), env);
+            // replce the unquote call with the value of the unquoted tree node
             return convertObjectToAstNode(value);
         });
         return new QuoteObject(quoted);
     }
 
+    /**
+     * convert the object to ast node
+     * @param value
+     * @return
+     */
     private TreeNode convertObjectToAstNode(ValueObject value) {
         switch (value.type()) {
             case INTEGER:
@@ -326,6 +381,11 @@ public class Evaluator {
         }
     }
 
+    /**
+     * check if the node is unquote call
+     * @param node
+     * @return
+     */
     private boolean ifUnquoteCall(TreeNode node) {
         if (!node.getClass().equals(CallExpressionNode.class))
             return false;

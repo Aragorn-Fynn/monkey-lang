@@ -18,7 +18,7 @@ import java.util.function.Function;
 public class Macro {
 
     /**
-     * suffix traverse, like eval
+     * suffix traverse the AST and modify it with the given function
      * @param node
      * @param modifyFunc
      * @return
@@ -138,7 +138,7 @@ public class Macro {
 
 
     /**
-     * modify child nodes, and then modify the node;
+     * modify the program node
      * @param node
      * @param modifyFunc
      * @return

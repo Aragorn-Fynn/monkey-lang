@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * example: macro(x, y) {return x+y;}
+ * macro literal node, macro definition starts with quote
+ * example: macro(x, y) {quote(x + y)}
  */
 @Data
 @NoArgsConstructor

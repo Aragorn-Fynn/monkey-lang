@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * macro object
+ * macro object is like function object, but it's different from function object.
+ * macro object is composed with quote node, when it's called, it will expand the quote node, and then replace the node with the expanded node.
  */
 @Data
 @NoArgsConstructor
