@@ -20,6 +20,14 @@
 11. 宏
 
 
+### 用法
+```shell
+git clone
+cd monkey-lang
+mvn clean package
+java -jar target/monkey-lang.jar
+```
+
 ### 示例
 1. 变量绑定
 ```shell
