@@ -7,6 +7,7 @@ import interpreter.lexer.TokenTypeEnum;
 import interpreter.macro.Macro;
 import interpreter.object.*;
 import lombok.Data;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,15 +94,16 @@ public class Evaluator {
             CallExpressionNode call = (CallExpressionNode) node;
             // get the macro definition from env
             MacroObject macro = (MacroObject) env.get(call.getFuncName().toString());
-
             // quote the arguments
             List<QuoteObject> args = quoteArgs(call);
 
             // set args in the env
             Environment evalEnv = extendMacroEnv(macro, args);
 
+            // bug-fix: support exprand macro twice
+            MacroObject copied = SerializationUtils.clone(macro);
             // eval macro body with env
-            ValueObject value = eval(macro.getBody(), evalEnv);
+            ValueObject value = eval(copied.getBody(), evalEnv);
 
             if (!value.getClass().equals(QuoteObject.class)) {
                 return null;

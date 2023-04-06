@@ -189,6 +189,8 @@ printed
 >>>  unless(10<5, print("not greater"), print("greater"))
 not greater
 >>> unless(10>5, print("not greater"), print("greater"))
+greater
+>>>
 ```
 
 ### 实现

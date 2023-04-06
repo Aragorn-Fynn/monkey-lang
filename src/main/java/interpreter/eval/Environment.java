@@ -4,6 +4,7 @@ import interpreter.object.ValueObject;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 
-public class Environment {
+public class Environment implements Serializable {
     /**
      * the map should not be static, if it is static, the outer context will share the same map, it is wrong.
      */
