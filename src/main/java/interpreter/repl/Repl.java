@@ -29,7 +29,7 @@ public class Repl {
                 .build();
 
         // 2. command completer
-        Completer completer = new StringsCompleter("fn", "let", "true", "false", "if", "else", "return");
+        Completer completer = new StringsCompleter("fn", "let", "true", "false", "if", "else", "return", "macro", "while");
 
         // 3. create reader
         // new line on '{' and '('

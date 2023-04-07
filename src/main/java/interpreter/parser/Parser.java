@@ -204,7 +204,28 @@ public class Parser {
         prefixParseFuncMap.put(TokenTypeEnum.IF, ifExpressionParseFunc());
         prefixParseFuncMap.put(TokenTypeEnum.FUNCTION, functionparseFunc());
         prefixParseFuncMap.put(TokenTypeEnum.MACRO, macroparseFunc());
+        prefixParseFuncMap.put(TokenTypeEnum.WHILE, whileExpressionParseFunc());
 
+    }
+
+    private Supplier<ExpressionNode> whileExpressionParseFunc() {
+        return () -> {
+            WhileExpressionNode res = new WhileExpressionNode();
+            res.setToken(currentToken);
+            if (!expectPeek(TokenTypeEnum.LPAREN)) {
+                return null;
+            }
+            consume();
+            res.setCondition(parseExpression(PrecedenceEnum.LOWEST));
+            if (!expectPeek(TokenTypeEnum.RPAREN)) {
+                return null;
+            }
+            if (!expectPeek(TokenTypeEnum.LBRACE)) {
+                return null;
+            }
+            res.setBody(parseBlockStatement());
+            return res;
+        };
     }
 
     private Supplier<ExpressionNode> macroparseFunc() {

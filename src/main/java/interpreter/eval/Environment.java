@@ -11,9 +11,7 @@ import java.util.Map;
 /**
  * context while interpreting the statement, store the value of identifier
  */
-@Data
 @NoArgsConstructor
-
 public class Environment implements Serializable {
     /**
      * the map should not be static, if it is static, the outer context will share the same map, it is wrong.

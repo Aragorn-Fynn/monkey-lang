@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * example:{1+2; 3+4;}
@@ -22,8 +21,12 @@ public class BlockStatement implements StatementNode {
 
     @Override
     public String toString() {
-        return statements.stream()
-                .map(item -> item.toString())
-                .collect(Collectors.joining("\n"));
+        StringBuffer res = new StringBuffer();
+        res.append("{\n");
+        for (StatementNode statement : statements) {
+            res.append(statement.toString()).append("\n");
+        }
+        res.append("}");
+        return res.toString();
     }
 }

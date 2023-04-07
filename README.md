@@ -3,6 +3,8 @@
 ### 概述
 参考[用Go语言自制解释器](https://book.douban.com/subject/35909085/)实现的一门带命令行的语言， 具体特性如下：
 1. 类C语法
+    1. if else
+    2. while
 2. 变量绑定
 3. 整型和布尔型
 4. 算术表达式
@@ -202,6 +204,25 @@ greater
 ```
 9. 循环
 ```shell
+>>> let loop = fn() {
+        let i=0;
+        while(i<3) {
+            print(i);
+            let i=i+1;
+        }
+    };
+NULL
+>>> loop();
+0
+1
+2
+NULL
+>>> loop();
+0
+1
+2
+NULL
+>>>
 >>> let loop = fn(i) {
         if (i<2) {
             print(i);

@@ -63,9 +63,38 @@ public class Evaluator {
             return evalArrayIndex((IndexExpressionNode) node, env);
         } else if (nodeClass.equals(MapLiteralExpressionNode.class)) {
             return evalMapLiteral((MapLiteralExpressionNode) node, env);
+        } else if (nodeClass.equals(WhileExpressionNode.class)) {
+            return evalWhileExpression((WhileExpressionNode) node, env);
         }
 
         return NullObject.getNullObject();
+    }
+
+    /**
+     * eval while expression
+     * 1. eval condition
+     * 2. if condition is true, eval body
+     * 3. if condition is false, break
+     * @param node
+     * @param env
+     * @return
+     */
+    private ValueObject evalWhileExpression(WhileExpressionNode node, Environment env) {
+        ValueObject res = NullObject.getNullObject();
+        do {
+            ValueObject cond = eval(node.getCondition(), env);
+            if (cond.type() == ValueTypeEnum.ERROR) {
+                return cond;
+            }
+
+            if (isTrue(cond)) {
+                res = eval(node.getBody(), env);
+            } else {
+                break;
+            }
+
+        } while (true);
+        return res;
     }
 
     /**
