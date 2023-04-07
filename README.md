@@ -202,16 +202,17 @@ greater
 ```
 9. 循环
 ```shell
->>> let loop = macro(cond, step, statements) {
-        quote(if (unquote(cond)) {
-                unquote(statements);
-                unquote(step);
-            });
+>>> let loop = fn(i) {
+        if (i<2) {
+            print(i);
+            loop(i+1);
+        }
     };
->>> let i=0;
->>> loop(i<2, i+1, print(i));
+NULL
+>>> loop(0)
 0
 1
+NULL
 >>>
 ```
 
