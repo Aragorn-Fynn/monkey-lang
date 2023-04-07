@@ -5,6 +5,7 @@
 1. 类C语法
     1. if else
     2. while
+    3. 函数定义
 2. 变量绑定
 3. 整型和布尔型
 4. 算术表达式
@@ -66,6 +67,25 @@ false
 >>> fib(20)
 6765
 >>> 
+>>> fn fib(x) {
+        if (x==0) {
+                return 0;
+            } else {
+                if (x==1) {
+                    return 1;
+                } else {
+                    return fib(x-1) +fib(x-2);
+                }
+            }
+        };
+NULL
+>>> fib(1);
+1
+>>> fib(2);
+1
+>>> fib(3);
+2
+>>>
 ```
 3. 高阶函数
 ```shell

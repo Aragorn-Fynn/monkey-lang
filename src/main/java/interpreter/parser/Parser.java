@@ -486,6 +486,9 @@ public class Parser {
 
         res.setBody(parseBlockStatement());
 
+        if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
+            consume();
+        }
         return res;
     }
 
