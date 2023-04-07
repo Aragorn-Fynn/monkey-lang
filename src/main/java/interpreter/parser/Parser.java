@@ -455,6 +455,9 @@ public class Parser {
             case LET:
                 statement = parseLetStatement();
                 break;
+            case FUNCTION:
+                statement = parseFuncDeclStatement();
+                break;
             case RETURN:
                 statement = parseReturnStatement();
                 break;
@@ -463,6 +466,27 @@ public class Parser {
         }
 
         return statement;
+    }
+
+    private StatementNode parseFuncDeclStatement() {
+        FunctionStatementNode res = new FunctionStatementNode();
+        res.setToken(currentToken);
+
+        res.setFuncName(parseIdentifiter());
+
+        if (!expectPeek(TokenTypeEnum.LPAREN)) {
+            return null;
+        }
+
+        res.setParameters(parseParameters());
+
+        if (!expectPeek(TokenTypeEnum.LBRACE)) {
+            return null;
+        }
+
+        res.setBody(parseBlockStatement());
+
+        return res;
     }
 
     private StatementNode parseExpressionStatement() {

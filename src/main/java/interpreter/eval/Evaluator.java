@@ -65,8 +65,16 @@ public class Evaluator {
             return evalMapLiteral((MapLiteralExpressionNode) node, env);
         } else if (nodeClass.equals(WhileExpressionNode.class)) {
             return evalWhileExpression((WhileExpressionNode) node, env);
+        } else if (nodeClass.equals(FunctionStatementNode.class)) {
+            return evalFunctionStatement((FunctionStatementNode) node, env);
         }
 
+        return NullObject.getNullObject();
+    }
+
+    private ValueObject evalFunctionStatement(FunctionStatementNode node, Environment env) {
+        FunctionObject function = new FunctionObject(node.getParameters(), node.getBody(), env);
+        env.set(node.getFuncName().getValue(), function);
         return NullObject.getNullObject();
     }
 
