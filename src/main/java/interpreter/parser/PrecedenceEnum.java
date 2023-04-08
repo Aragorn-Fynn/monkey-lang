@@ -6,13 +6,19 @@ package interpreter.parser;
 public enum PrecedenceEnum {
     DEFAULT,
     LOWEST,
-    // ==
+    // =
+    ASSIGN,
+    // or
+    OR,
+    // and
+    AND,
+    // == !=
     EQUALS,
-    // > or <
+    // > < >= <=
     LESSGREATER,
-    // +
+    // + -
     SUM,
-    // *
+    // * /
     PRODUCT,
     // -x or !x
     PREFIX,

@@ -64,6 +64,9 @@ public class Parser {
     }
 
     private void initPrecedenceMap() {
+        type2PrecedenceMap.put(TokenTypeEnum.ASSIGN, PrecedenceEnum.ASSIGN);
+        type2PrecedenceMap.put(TokenTypeEnum.OR, PrecedenceEnum.OR);
+        type2PrecedenceMap.put(TokenTypeEnum.AND, PrecedenceEnum.AND);
         type2PrecedenceMap.put(TokenTypeEnum.EQ, PrecedenceEnum.EQUALS);
         type2PrecedenceMap.put(TokenTypeEnum.NOT_EQ, PrecedenceEnum.EQUALS);
         type2PrecedenceMap.put(TokenTypeEnum.LT, PrecedenceEnum.LESSGREATER);
@@ -113,6 +116,7 @@ public class Parser {
      */
     private void initInfixParseFuncMap() {
 
+
         infixParseFuncMap.put(TokenTypeEnum.PLUS, infixparseFunc());
         infixParseFuncMap.put(TokenTypeEnum.MINUS, infixparseFunc());
         infixParseFuncMap.put(TokenTypeEnum.SLASH, infixparseFunc());
@@ -128,6 +132,33 @@ public class Parser {
         infixParseFuncMap.put(TokenTypeEnum.LPAREN, parseCallFunc());
 
         infixParseFuncMap.put(TokenTypeEnum.LBRACKET, parseArrayIndexFunc());
+        infixParseFuncMap.put(TokenTypeEnum.ASSIGN, parseAssignFunc());
+    }
+
+    private Function<ExpressionNode, ExpressionNode> parseAssignFunc() {
+        return left -> {
+            AssignExpressionNode res = new AssignExpressionNode();
+
+            // left should be identifier
+            if (left instanceof IdentifierNode) {
+                res.setName((IdentifierNode) left);
+            } else {
+                errors.add(String.format("expect identifier, but got: %s", left.toString()));
+                return null;
+            }
+
+            PrecedenceEnum precedence = currentPrecedence();
+            // consume =
+            consume();
+            // next is an expression
+            res.setValue(parseExpression(precedence));
+
+            if (peekToken.getType() == TokenTypeEnum.SEMICOLON) {
+                consume();
+            }
+
+            return res;
+        };
     }
 
     private Function<ExpressionNode, ExpressionNode> parseArrayIndexFunc() {

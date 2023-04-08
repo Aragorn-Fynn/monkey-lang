@@ -67,8 +67,24 @@ public class Evaluator {
             return evalWhileExpression((WhileExpressionNode) node, env);
         } else if (nodeClass.equals(FunctionStatementNode.class)) {
             return evalFunctionStatement((FunctionStatementNode) node, env);
+        } else if (nodeClass.equals(AssignExpressionNode.class)) {
+            return evalAssignExpresssion((AssignExpressionNode) node, env);
         }
 
+        return NullObject.getNullObject();
+    }
+
+    private ValueObject evalAssignExpresssion(AssignExpressionNode node, Environment env) {
+        ValueObject value = eval(node.getValue(), env);
+        if (value.type() == ValueTypeEnum.ERROR) {
+            return value;
+        }
+
+        if (env.get(node.getName().getValue()) == null) {
+            return new ErrorObject(String.format("variable %s not found!", node.getName().getValue()));
+        }
+
+        env.set(node.getName().getValue(), value);
         return NullObject.getNullObject();
     }
 
@@ -539,6 +555,11 @@ public class Evaluator {
                 return false;
             case BOOLEAN:
                 return ((BooleanObject) condition).getValue();
+            case INTEGER:
+                return ((IntegerObject) condition).getValue() != 0;
+            case STRING:
+                return ((StringObject) condition).getValue() != null
+                        && !((StringObject) condition).getValue().isEmpty();
             default:
                 return true;
         }
