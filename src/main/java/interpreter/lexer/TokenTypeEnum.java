@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.Arrays;
 
 /**
- * Token Type
+ * Token Type: remember the kind of token while scanning is convenient for parsing.
  */
 @Getter
 public enum TokenTypeEnum {
@@ -30,7 +30,9 @@ public enum TokenTypeEnum {
     SLASH("/", false),
 
     LT("<", false),
+    LE("<=", false),
     GT(">", false),
+    GE(">=", false),
 
     EQ("==", false),
     NOT_EQ("!=", false),
@@ -57,7 +59,11 @@ public enum TokenTypeEnum {
     ELSE("else", true),
     RETURN("return", true),
     MACRO("macro", true),
-    WHILE("while", true);
+    WHILE("while", true),
+    AND("and", true),
+    OR("or", true)
+    ;
+
 
     private String literial;
 

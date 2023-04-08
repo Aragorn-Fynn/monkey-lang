@@ -67,7 +67,9 @@ public class Parser {
         type2PrecedenceMap.put(TokenTypeEnum.EQ, PrecedenceEnum.EQUALS);
         type2PrecedenceMap.put(TokenTypeEnum.NOT_EQ, PrecedenceEnum.EQUALS);
         type2PrecedenceMap.put(TokenTypeEnum.LT, PrecedenceEnum.LESSGREATER);
+        type2PrecedenceMap.put(TokenTypeEnum.LE, PrecedenceEnum.LESSGREATER);
         type2PrecedenceMap.put(TokenTypeEnum.GT, PrecedenceEnum.LESSGREATER);
+        type2PrecedenceMap.put(TokenTypeEnum.GE, PrecedenceEnum.LESSGREATER);
         type2PrecedenceMap.put(TokenTypeEnum.PLUS, PrecedenceEnum.SUM);
         type2PrecedenceMap.put(TokenTypeEnum.MINUS, PrecedenceEnum.SUM);
         type2PrecedenceMap.put(TokenTypeEnum.ASTERISK, PrecedenceEnum.PRODUCT);
@@ -117,7 +119,9 @@ public class Parser {
         infixParseFuncMap.put(TokenTypeEnum.ASTERISK, infixparseFunc());
 
         infixParseFuncMap.put(TokenTypeEnum.GT, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.GE, infixparseFunc());
         infixParseFuncMap.put(TokenTypeEnum.LT, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.LE, infixparseFunc());
         infixParseFuncMap.put(TokenTypeEnum.EQ, infixparseFunc());
         infixParseFuncMap.put(TokenTypeEnum.NOT_EQ, infixparseFunc());
 

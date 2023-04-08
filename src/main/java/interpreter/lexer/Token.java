@@ -21,8 +21,14 @@ public class Token implements Serializable {
      */
     private String literal;
 
-    public Token(TokenTypeEnum type) {
+    /**
+     * the line in the source
+     */
+    private Integer line;
+
+    public Token(TokenTypeEnum type, Integer line) {
         this.type = type;
+        this.line = line;
         this.literal = type.getLiterial();
     }
 }

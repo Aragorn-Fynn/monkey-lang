@@ -28,12 +28,18 @@ public class Lexer {
      */
     private char character;
 
-    private static final Token EOF = new Token(TokenTypeEnum.EOF);
+    /**
+     * current line of source
+     */
+    private int line;
+
+    private static final Token EOF = new Token(TokenTypeEnum.EOF, -1);
 
     public Lexer(String input) {
         this.input = input;
         this.position = 0;
         this.readPosition = 1;
+        this.line = 1;
     }
 
     public Token nextToken() {
@@ -46,74 +52,84 @@ public class Lexer {
             case '=':
                 if (peek() == '=') {
                     consume();
-                    token = new Token(TokenTypeEnum.EQ);
+                    token = new Token(TokenTypeEnum.EQ, line);
                 } else {
-                    token = new Token(TokenTypeEnum.ASSIGN);
+                    token = new Token(TokenTypeEnum.ASSIGN, line);
                 }
                 break;
             case '!':
                 if (peek() == '=') {
                     consume();
-                    token = new Token(TokenTypeEnum.NOT_EQ);
+                    token = new Token(TokenTypeEnum.NOT_EQ, line);
                 } else {
-                    token = new Token(TokenTypeEnum.BANG);
+                    token = new Token(TokenTypeEnum.BANG, line);
                 }
                 break;
             case '+':
-                token = new Token(TokenTypeEnum.PLUS);
+                token = new Token(TokenTypeEnum.PLUS, line);
                 break;
             case '-':
-                token = new Token(TokenTypeEnum.MINUS);
+                token = new Token(TokenTypeEnum.MINUS, line);
                 break;
             case '*':
-                token = new Token(TokenTypeEnum.ASTERISK);
+                token = new Token(TokenTypeEnum.ASTERISK, line);
                 break;
             case '/':
-                token = new Token(TokenTypeEnum.SLASH);
+                token = new Token(TokenTypeEnum.SLASH, line);
                 break;
             case '<':
-                token = new Token(TokenTypeEnum.LT);
+                if (peek() == '=') {
+                    consume();
+                    token = new Token(TokenTypeEnum.LE, line);
+                } else {
+                    token = new Token(TokenTypeEnum.LT, line);
+                }
                 break;
             case '>':
-                token = new Token(TokenTypeEnum.GT);
+                if (peek() == '=') {
+                    consume();
+                    token = new Token(TokenTypeEnum.GE, line);
+                } else {
+                    token = new Token(TokenTypeEnum.GT, line);
+                }
                 break;
             case ',':
-                token = new Token(TokenTypeEnum.COMMA);
+                token = new Token(TokenTypeEnum.COMMA, line);
                 break;
             case ';':
-                token = new Token(TokenTypeEnum.SEMICOLON);
+                token = new Token(TokenTypeEnum.SEMICOLON, line);
                 break;
             case '(':
-                token = new Token(TokenTypeEnum.LPAREN);
+                token = new Token(TokenTypeEnum.LPAREN, line);
                 break;
             case ')':
-                token = new Token(TokenTypeEnum.RPAREN);
+                token = new Token(TokenTypeEnum.RPAREN, line);
                 break;
             case '{':
-                token = new Token(TokenTypeEnum.LBRACE);
+                token = new Token(TokenTypeEnum.LBRACE, line);
                 break;
             case '}':
-                token = new Token(TokenTypeEnum.RBRACE);
+                token = new Token(TokenTypeEnum.RBRACE, line);
                 break;
             case '[':
-                token = new Token(TokenTypeEnum.LBRACKET);
+                token = new Token(TokenTypeEnum.LBRACKET, line);
                 break;
             case ']':
-                token = new Token(TokenTypeEnum.RBRACKET);
+                token = new Token(TokenTypeEnum.RBRACKET, line);
                 break;
             case '"':
                 token = getString();
                 break;
             case ':' :
-                token = new Token(TokenTypeEnum.COLON);
+                token = new Token(TokenTypeEnum.COLON, line);
                 break;
             default:
                 if (Character.isDigit(ch)) {
                     token = getNum();
-                } else if (isLetter(ch)) {
+                } else if (isAlpha(ch)) {
                     token = getIdent();
                 } else {
-                    token = new Token(TokenTypeEnum.ILLEGAL);
+                    token = new Token(TokenTypeEnum.ILLEGAL, line);
                 }
         }
 
@@ -132,7 +148,7 @@ public class Lexer {
         }
 
         String str = input.substring(pos, position - 1);
-        return new Token(TokenTypeEnum.STRING, str);
+        return new Token(TokenTypeEnum.STRING, str, line);
     }
 
     /**
@@ -147,7 +163,7 @@ public class Lexer {
         }
 
         num += input.substring(pos, position);
-        return new Token(TokenTypeEnum.INT, num);
+        return new Token(TokenTypeEnum.INT, num, line);
     }
 
     /**
@@ -157,12 +173,12 @@ public class Lexer {
     private Token getIdent() {
         int pos = position;
         String identifier = character + "";
-        while (isLetter(peek()) && !isEOF(peek())) {
+        while ((isAlpha(peek()) || Character.isDigit(peek()))&& !isEOF(peek())) {
             consume();
         }
 
         identifier += input.substring(pos, position);
-        return new Token(TokenTypeEnum.of(identifier), identifier);
+        return new Token(TokenTypeEnum.of(identifier), identifier, line);
     }
 
     /**
@@ -179,7 +195,7 @@ public class Lexer {
      * @param ch
      * @return
      */
-    private boolean isLetter(char ch) {
+    private boolean isAlpha(char ch) {
         return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';
     }
 
@@ -195,6 +211,9 @@ public class Lexer {
             position++;
             readPosition++;
             if (Character.isWhitespace(character)) {
+                if (character == '\n') {
+                    line++;
+                }
                 consume();
             }
             return character;

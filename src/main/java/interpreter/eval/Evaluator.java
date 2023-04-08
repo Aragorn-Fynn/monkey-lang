@@ -409,10 +409,10 @@ public class Evaluator {
     private TreeNode convertObjectToAstNode(ValueObject value) {
         switch (value.type()) {
             case INTEGER:
-                return new IntegerLiteralNode(new Token(TokenTypeEnum.INT, value.inspect()), ((IntegerObject) value).getValue());
+                return new IntegerLiteralNode(new Token(TokenTypeEnum.INT, value.inspect(), -1), ((IntegerObject) value).getValue());
             case BOOLEAN:
                 BooleanObject v = (BooleanObject) value;
-                return new BooleanLiteralNode(new Token(v.getValue()?TokenTypeEnum.TRUE:TokenTypeEnum.FALSE, v.inspect()), v.getValue());
+                return new BooleanLiteralNode(new Token(v.getValue()?TokenTypeEnum.TRUE:TokenTypeEnum.FALSE, v.inspect(), -1), v.getValue());
             case QUOTE:
                 return ((QuoteObject) value).getNode();
             default:
@@ -573,8 +573,12 @@ public class Evaluator {
                     return new IntegerObject(leftInt.getValue() / rightInt.getValue());
                 case "<":
                     return BooleanObject.getBooleanObject(leftInt.getValue() < rightInt.getValue());
+                case "<=":
+                    return BooleanObject.getBooleanObject(leftInt.getValue() <= rightInt.getValue());
                 case ">":
                     return BooleanObject.getBooleanObject(leftInt.getValue() > rightInt.getValue());
+                case ">=":
+                    return BooleanObject.getBooleanObject(leftInt.getValue() >= rightInt.getValue());
                 case "!=":
                     return BooleanObject.getBooleanObject(leftInt.getValue().intValue() != rightInt.getValue().intValue());
                 case "==":
