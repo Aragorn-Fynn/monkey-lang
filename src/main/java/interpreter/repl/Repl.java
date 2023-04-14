@@ -6,6 +6,7 @@ import interpreter.eval.Environment;
 import interpreter.eval.Evaluator;
 import interpreter.lexer.Lexer;
 import interpreter.object.ValueObject;
+import interpreter.object.ValueTypeEnum;
 import interpreter.parser.Parser;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
@@ -80,7 +81,7 @@ public class Repl {
 
                 // 3. evaluate the ast;
                 ValueObject value = evaluator.eval(expanded, env);
-                if (value != null) {
+                if (value != null && value.type() != ValueTypeEnum.NULL) {
                     terminal.writer().println(value.inspect());
                 }
             } catch (UserInterruptException e) {// Ctrl + C
