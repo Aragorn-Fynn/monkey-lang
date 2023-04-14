@@ -609,10 +609,19 @@ public class Evaluator {
             }
         } else if (left.type() == ValueTypeEnum.STRING && "+".equals(node.getOperator())) {
             return new StringObject(((StringObject)left).getValue() + ((StringObject)right).getValue());
-        } else if ("==".equals(node.getOperator())) {
-            return BooleanObject.getBooleanObject(left == right);
-        } else if ("!=".equals(node.getOperator())) {
-            return BooleanObject.getBooleanObject(left != right);
+        } else if (left.type() == ValueTypeEnum.BOOLEAN) {
+            switch (node.getOperator()) {
+                case "and":
+                    return BooleanObject.getBooleanObject(((BooleanObject) left).getValue() && ((BooleanObject) right).getValue());
+                case "or":
+                    return BooleanObject.getBooleanObject(((BooleanObject) left).getValue() || ((BooleanObject) right).getValue());
+                case "==":
+                    return BooleanObject.getBooleanObject(left == right);
+                case "!=":
+                    return BooleanObject.getBooleanObject(left != right);
+                default:
+                    return new ErrorObject(String.format("unknown operator: %s %s %s", left.type(), node.getOperator(), right.type()));
+            }
         }
         return new ErrorObject(String.format("unknown operator: %s %s %s", left.type(), node.getOperator(), right.type()));
     }

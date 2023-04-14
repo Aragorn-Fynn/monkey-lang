@@ -128,6 +128,8 @@ public class Parser {
         infixParseFuncMap.put(TokenTypeEnum.LE, infixparseFunc());
         infixParseFuncMap.put(TokenTypeEnum.EQ, infixparseFunc());
         infixParseFuncMap.put(TokenTypeEnum.NOT_EQ, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.AND, infixparseFunc());
+        infixParseFuncMap.put(TokenTypeEnum.OR, infixparseFunc());
 
         infixParseFuncMap.put(TokenTypeEnum.LPAREN, parseCallFunc());
 
